@@ -1,4 +1,322 @@
-  <script>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Африка: Подорож дослідника (7 клас НУШ)</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==================== БАЗОВІ СТИЛІ ==================== */
+    * { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; box-sizing: border-box; }
+    html, body { height: 100%; height: 100dvh; min-height: 100dvh; }
+    body {
+      margin: 0; padding: 0; overflow: hidden;
+      background-color: #0F1115; color: #F3F4F6;
+      font-family: 'Inter', sans-serif;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      display: flex; flex-direction: column;
+    }
+
+    /* ==================== КОЛЬОРИ ТА УТИЛІТИ ==================== */
+    :root {
+      --gold-300: #F5E1A4; --gold-400: #EED380; --gold-500: #D4AF37; --gold-600: #AA8820;
+      --asphalt-950: #0F1115; --asphalt-900: #15181E; --asphalt-800: #1F232B; --asphalt-700: #2A303C;
+      --emerald-400: #4ade80; --emerald-500: #22c55e; --emerald-900: rgba(6, 78, 59, 0.4);
+      --rose-400: #f87171; --rose-500: #ef4444; --rose-900: rgba(127, 29, 29, 0.4);
+    }
+    .text-gold-300 { color: var(--gold-300); } .text-gold-400 { color: var(--gold-400); }
+    .bg-gold-500 { background-color: var(--gold-500); }
+    .text-slate-100 { color: #f1f5f9; } .text-slate-300 { color: #cbd5e1; }
+    .text-slate-400 { color: #94a3b8; } .text-asphalt-950 { color: var(--asphalt-950); }
+    
+    .glass-panel-asphalt { background: rgba(26, 30, 38, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.22); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1); }
+    .glass-card-asphalt { background: rgba(35, 41, 52, 0.8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+    .gold-gradient-text { background: linear-gradient(135deg, #FFF1C5 0%, #D4AF37 50%, #9A7B1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .gold-button-bg { background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #AA8820 100%); color: #0F1115; box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3); }
+    .gold-button-bg:active { transform: scale(0.97); }
+
+    /* ==================== КАРТА ==================== */
+    main { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden; }
+    #map { position: absolute; inset: 0; height: 100%; width: 100%; background: #0B0D10; z-index: 0; }
+    .leaflet-container { background: #0B0D10 !important; font-family: 'Inter', sans-serif; }
+    .leaflet-control-attribution { background: rgba(15, 17, 21, 0.7) !important; color: #9CA3AF !important; font-size: 10px !important; backdrop-filter: blur(6px); border-radius: 6px; padding: 2px 8px !important; margin: 6px !important; }
+    .leaflet-control-attribution a { color: #D4AF37 !important; }
+
+    /* Темна тема для попапів Leaflet */
+    .leaflet-popup-content-wrapper { background: rgba(26, 30, 38, 0.97) !important; color: #F3F4F6 !important; border: 1px solid rgba(212, 175, 55, 0.5) !important; border-radius: 12px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important; }
+    .leaflet-popup-content { margin: 8px 12px !important; color: #F3F4F6 !important; }
+    .leaflet-popup-tip { background: rgba(26, 30, 38, 0.97) !important; border: 1px solid rgba(212, 175, 55, 0.5) !important; }
+    .leaflet-popup-close-button { color: #D4AF37 !important; }
+
+    /* Маркери */
+    .target-marker-icon { display: flex; align-items: center; justify-content: center; }
+    .target-pin { width: 28px; height: 28px; border-radius: 50%; background: rgba(212, 175, 55, 0.28); border: 2px solid #D4AF37; box-shadow: 0 0 14px rgba(212, 175, 55, 0.6); cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; position: relative; }
+    .target-pin::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #F3E5AB; }
+    .target-pin.pulse { animation: gold-pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1); }
+    .target-pin.correct-1 { background: rgba(34, 197, 94, 0.45); border-color: #22c55e; box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); cursor: default; }
+    .target-pin.correct-2 { background: rgba(234, 179, 8, 0.45); border-color: #eab308; box-shadow: 0 0 16px rgba(234, 179, 8, 0.6); cursor: default; }
+    .target-pin.correct-3 { background: rgba(239, 68, 68, 0.45); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.6); cursor: default; }
+    @keyframes gold-pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); } 70% { transform: scale(1.25); box-shadow: 0 0 0 14px rgba(212, 175, 55, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+
+    /* ==================== ІНТЕРФЕЙС ==================== */
+    header { z-index: 20; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(212, 175, 55, 0.3); flex-shrink: 0; }
+    .logo-box { width: 40px; height: 40px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; flex-shrink: 0; }
+    .header-title { font-size: 14px; font-weight: 800; color: #f1f5f9; display: flex; align-items: center; gap: 6px; white-space: nowrap; margin: 0; }
+    .header-badge { background: rgba(212, 175, 55, 0.2); color: var(--gold-300); font-size: 10px; padding: 2px 6px; border-radius: 9999px; border: 1px solid rgba(212, 175, 55, 0.4); }
+    .header-sub { font-size: 11px; color: #94a3b8; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+
+    .btn-finish { display: flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.4); color: var(--rose-400); font-size: 10px; font-weight: 700; transition: all 0.2s; }
+    .score-box { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); }
+    .score-label { font-size: 8px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .score-val { font-size: 12px; font-weight: 800; color: var(--gold-300); line-height: 1; white-space: nowrap; }
+    .score-total { font-size: 9px; color: #94a3b8; font-weight: normal; }
+
+    nav { z-index: 10; padding: 6px 8px; display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid rgba(255, 255, 255, 0.05); flex-shrink: 0; scrollbar-width: none; }
+    nav::-webkit-scrollbar { display: none; }
+    .cat-tab { padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 500; color: #cbd5e1; transition: all 0.2s; white-space: nowrap; border: none; background: transparent; cursor: pointer; }
+    .cat-tab.active { background: var(--gold-500); color: var(--asphalt-950); font-weight: 700; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+
+    footer { z-index: 20; padding: 8px; border-top: 1px solid rgba(212, 175, 55, 0.3); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .footer-info { display: flex; align-items: center; justify-content: space-between; font-size: 10px; padding: 0 4px; }
+    .footer-left { color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .footer-right { color: var(--gold-400); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    #labels-tray { display: flex; gap: 8px; overflow-x: auto; padding: 4px; align-items: center; min-height: 46px; scrollbar-width: none; }
+    #labels-tray::-webkit-scrollbar { display: none; }
+    .chip { padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: 600; color: #cbd5e1; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); background: rgba(35, 41, 52, 0.8); cursor: pointer; }
+    .chip-selected { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%) !important; color: #0F1115 !important; font-weight: 700 !important; border-color: #FFF1C5 !important; box-shadow: 0 0 18px rgba(212, 175, 55, 0.7); transform: translateY(-2px); }
+
+    #instruction-toast { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; width: 94%; max-width: 400px; padding: 8px 12px; border-radius: 16px; text-align: center; pointer-events: none; }
+    #toast-text { font-size: 11px; color: #e2e8f0; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; }
+
+    #stage2-bar { display: none; position: absolute; bottom: 0; left: 0; right: 0; z-index: 30; padding: 12px; flex-direction: column; align-items: center; }
+    #stage2-bar.active { display: flex; }
+    .story-panel { width: 100%; max-width: 576px; padding: 14px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.4); pointer-events: auto; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); max-height: 62dvh; overflow-y: auto; }
+    .narrative { font-size: 13px; line-height: 1.4; color: #F3F4F6; font-style: italic; border-left: 3px solid #D4AF37; padding-left: 10px; margin-bottom: 8px; }
+    #story-question { font-size: 13px; font-weight: 700; color: var(--gold-300); text-align: center; margin-bottom: 8px; }
+    .story-choice { min-height: 44px; padding: 9px 12px; background: rgba(35, 41, 52, 0.92); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #F3F4F6; font-weight: 600; font-size: 13px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 9px; line-height: 1.3; transition: all 0.2s; margin-bottom: 6px; width: 100%; }
+    .story-choice.correct { background: rgba(34,197,94,0.28) !important; border-color: #22c55e !important; color: #4ade80 !important; }
+    .story-choice.incorrect { background: rgba(239,68,68,0.28) !important; border-color: #ef4444 !important; color: #f87171 !important; }
+    .story-choice:disabled { opacity: 1; }
+    #story-consequence { font-size: 11px; padding: 8px; border-radius: 10px; margin-top: 8px; display: none; }
+    #story-consequence.active { display: block; }
+
+    /* Кнопки на карті */
+    #btn-recenter, #btn-reload-map { position: absolute; width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--gold-400); box-shadow: 0 4px 18px rgba(0,0,0,0.5); background: rgba(26,30,38,0.9); border: 1px solid rgba(212,175,55,0.4); z-index: 20; cursor: pointer; }
+    #btn-recenter { bottom: 16px; right: 12px; }
+    #btn-reload-map { bottom: 16px; left: 12px; }
+    #btn-recenter:active, #btn-reload-map:active { transform: scale(0.95); }
+    #btn-reload-map.spinning i { animation: spin 0.8s linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Статус карти */
+    #map-status { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 15; padding: 5px 12px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.4px; display: flex; align-items: center; gap: 6px; pointer-events: none; transition: opacity 0.3s; background: rgba(15,17,21,0.85); border: 1px solid rgba(255,255,255,0.15); color: #9CA3AF; backdrop-filter: blur(8px); max-width: 92%; }
+    #map-status.ok { border-color: rgba(34,197,94,0.5); color: #4ade80; }
+    #map-status.warn { border-color: rgba(234,179,8,0.5); color: #facc15; }
+    #map-status.offline { border-color: rgba(239,68,68,0.5); color: #f87171; }
+    #map-status.hidden { opacity: 0; pointer-events: none; }
+
+    /* Модальні вікна */
+    .modal { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; background: rgba(15, 17, 21, 0.85); backdrop-filter: blur(8px); padding: 16px; overflow-y: auto; }
+    .modal.active { display: flex; }
+    .modal-content { width: 100%; max-width: 400px; border-radius: 24px; padding: 20px; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); margin: auto; }
+    
+    .class-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
+    .word-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .class-btn { padding: 12px 8px; border-radius: 14px; background: rgba(35,41,52,0.92); border: 1px solid rgba(255,255,255,0.1); color: #F3F4F6; font-weight: 700; font-size: 14px; transition: all 0.2s; cursor: pointer; }
+    .class-btn.active { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%); color: #0F1115; border-color: #FFF1C5; box-shadow: 0 0 18px rgba(212,175,55,0.7); }
+
+    .btn-start { width: 100%; padding: 14px; border-radius: 16px; font-weight: 800; font-size: 14px; letter-spacing: 0.5px; margin-top: 16px; cursor: pointer; border: none; }
+    .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .score-card { padding: 12px; border-radius: 16px; text-align: center; }
+    .score-card-label { font-size: 10px; color: #94a3b8; display: block; margin-bottom: 4px; }
+    .score-card-val { font-size: 18px; font-weight: 800; color: var(--gold-300); }
+
+    .journal-box { padding: 12px; border-radius: 16px; text-align: left; font-size: 12px; margin-bottom: 16px; }
+    .journal-title { font-weight: 700; color: var(--gold-300); margin-bottom: 4px; }
+
+    /* Адаптація для телефонів */
+    @media (max-width: 640px) {
+      header { padding: 6px 10px !important; }
+      .header-title { font-size: 11px !important; }
+      .logo-box { width: 34px !important; height: 34px !important; font-size: 14px !important; }
+      .cat-tab { padding: 6px 10px !important; font-size: 10px !important; }
+      footer { padding: 6px 8px !important; }
+      #labels-tray { min-height: 44px !important; gap: 6px !important; }
+      .chip { padding: 8px 10px !important; font-size: 11px !important; }
+      #instruction-toast { top: 6px !important; padding: 6px 10px !important; }
+      #toast-text { font-size: 10px !important; }
+      #btn-recenter { bottom: 14px !important; right: 10px !important; width: 42px !important; height: 42px !important; }
+      #btn-reload-map { bottom: 14px !important; left: 10px !important; width: 42px !important; height: 42px !important; }
+      #map-status { bottom: 66px !important; }
+      #stage2-bar { padding: 6px !important; }
+      .story-panel { padding: 10px !important; max-height: 62dvh; }
+      .narrative { font-size: 12px !important; }
+      #story-question { font-size: 12px !important; }
+      .story-choice { font-size: 12px !important; min-height: 42px !important; padding: 8px 10px !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="glass-panel-asphalt">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="logo-box gold-button-bg"><i class="fa-solid fa-earth-africa"></i></div>
+      <div style="min-width: 0;">
+        <h1 class="header-title">АФРИКА <span class="header-badge">7 кл.</span></h1>
+        <p class="header-sub"><span class="text-gold-400 font-semibold" id="class-label">—</span> · <span class="text-gold-400 font-semibold" id="word-label">—</span></p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+      <button id="btn-finish-early" class="btn-finish glass-card-asphalt" style="display: none;" onclick="confirmEarlyFinish()">
+        <i class="fa-solid fa-flag-checkered"></i> <span class="hidden sm:inline">Завершити</span>
+      </button>
+      <div class="score-box glass-card-asphalt">
+        <i class="fa-solid fa-award text-gold-400" style="font-size: 12px;"></i>
+        <div style="text-align: right;">
+          <div class="score-label">Оцінка</div>
+          <div class="score-val"><span id="current-score">0.0</span> <span class="score-total">/ 12</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="glass-panel-asphalt" id="stage1-nav">
+    <button data-cat="ALL" class="cat-tab active">Всі</button>
+    <button data-cat="EXTREME" class="cat-tab">📍 Точки</button>
+    <button data-cat="WATER" class="cat-tab">🌊 Води</button>
+    <button data-cat="RELIEF" class="cat-tab">⛰️ Рельєф</button>
+    <button data-cat="DESERT" class="cat-tab">🏜️ Пустелі</button>
+  </nav>
+
+  <!-- MAIN MAP AREA -->
+  <main>
+    <div id="map"></div>
+
+    <div id="instruction-toast" class="glass-panel-asphalt">
+      <p id="toast-text"><i class="fa-solid fa-hand-pointer text-gold-400" style="animation: bounce 1s infinite;"></i> <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span></p>
+    </div>
+
+    <div id="stage2-bar">
+      <div class="story-panel glass-panel-asphalt">
+        <div id="story-narrative" class="narrative"></div>
+        <div id="story-question"></div>
+        <div id="story-choices"></div>
+        <div id="story-consequence"></div>
+      </div>
+    </div>
+
+    <div id="map-status" class="hidden"></div>
+    <button id="btn-reload-map" title="Оновити карту"><i class="fa-solid fa-rotate"></i></button>
+    <button id="btn-recenter"><i class="fa-solid fa-crosshairs"></i></button>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="glass-panel-asphalt" id="stage1-footer">
+    <div class="footer-info">
+      <span class="footer-left"><i class="fa-solid fa-layer-group text-gold-400"></i> Залишилось: <span id="remaining-count" class="text-gold-300" style="font-weight: 700;">28</span> / 28</span>
+      <span class="footer-right" id="hint-action">Обери назву зі списку</span>
+    </div>
+    <div id="labels-tray"></div>
+  </footer>
+
+  <!-- MODAL START -->
+  <div id="modal-start" class="modal active">
+    <div class="modal-content glass-panel-asphalt">
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div style="display: inline-flex; width: 56px; height: 56px; border-radius: 16px; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 8px;" class="gold-button-bg"><i class="fa-solid fa-compass"></i></div>
+        <h2 style="font-size: 20px; font-weight: 900; margin: 0;">Африка: Подорож</h2>
+        <p style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">Етап 1: Карта. Етап 2: Історія.</p>
+      </div>
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--gold-300); text-transform: uppercase; margin-bottom: 6px;">Клас:</label>
+        <div id="class-grid" class="class-grid">
+          <button class="class-btn" data-class="7А">7А</button>
+          <button class="class-btn" data-class="7Б">7Б</button>
+          <button class="class-btn" data-class="7В">7В</button>
+          <button class="class-btn" data-class="7Г">7Г</button>
+          <button class="class-btn" data-class="7Д">7Д</button>
+        </div>
+      </div>
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--gold-300); text-transform: uppercase; margin-bottom: 6px;">Слово-маршрут:</label>
+        <div id="word-grid" class="word-grid">
+          <button class="class-btn" data-word="forest">🌿 Ліс</button>
+          <button class="class-btn" data-word="sahara">🏜️ Сахара</button>
+          <button class="class-btn" data-word="savanna">🦒 Савана</button>
+          <button class="class-btn" data-word="south">🦁 Південь</button>
+          <button class="class-btn" data-word="nile">🚣 Ніл</button>
+          <button class="class-btn" data-word="madagascar">🌴 Мадагаскар</button>
+        </div>
+      </div>
+      <div id="start-map-status" style="font-size: 10px; text-align: center; color: #94a3b8; font-style: italic; margin-top: 8px;">Перевірка карти…</div>
+      <button id="btn-start-game" disabled class="btn-start gold-button-bg">РОЗПОЧАТИ</button>
+    </div>
+  </div>
+
+  <!-- MODAL EARLY FINISH -->
+  <div id="modal-early-finish" class="modal">
+    <div class="modal-content glass-panel-asphalt" style="text-align: center; border-color: rgba(239, 68, 68, 0.4);">
+      <div style="display: inline-flex; width: 64px; height: 64px; border-radius: 50%; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); align-items: center; justify-content: center; color: var(--rose-400); font-size: 30px; margin-bottom: 12px;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h2 style="font-size: 18px; font-weight: 900; margin: 0 0 8px;">Завершити достроково?</h2>
+      <p id="early-finish-text" style="font-size: 12px; color: #cbd5e1; margin: 0 0 16px;">Ти не знайшов всі об'єкти. За незнайдені буде нараховано 0 балів.</p>
+      <div style="display: flex; gap: 8px;">
+        <button onclick="document.getElementById('modal-early-finish').classList.remove('active')" class="glass-card-asphalt" style="flex: 1; padding: 12px; border-radius: 12px; color: #cbd5e1; font-weight: 700; font-size: 12px; cursor: pointer; border: none;">Продовжити</button>
+        <button onclick="executeEarlyFinish()" style="flex: 1; padding: 12px; border-radius: 12px; background: #dc2626; color: white; font-weight: 700; font-size: 12px; cursor: pointer; border: none;">Завершити</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL INTER -->
+  <div id="modal-inter" class="modal">
+    <div class="modal-content glass-panel-asphalt" style="text-align: center;">
+      <div style="display: inline-flex; width: 64px; height: 64px; border-radius: 16px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4); align-items: center; justify-content: center; color: var(--emerald-400); font-size: 30px; margin-bottom: 12px;"><i class="fa-solid fa-map-location-dot"></i></div>
+      <h2 style="font-size: 20px; font-weight: 900; margin: 0 0 8px;">Етап 1 завершено!</h2>
+      <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 8px;">Оцінка за карту: <strong id="inter-score" class="text-gold-300" style="font-size: 18px;">0.0</strong> / 12.0</p>
+      <p style="font-size: 12px; color: #94a3b8; font-style: italic; margin-bottom: 16px;">Далі — історія за обраним словом.</p>
+      <button id="btn-goto-stage2" class="btn-start gold-button-bg" style="margin-top: 0;">У ПОДОРОЖ →</button>
+    </div>
+  </div>
+
+  <!-- MODAL VICTORY -->
+  <div id="modal-victory" class="modal">
+    <div class="modal-content glass-panel-asphalt" style="text-align: center;">
+      <div style="display: inline-flex; width: 64px; height: 64px; border-radius: 16px; align-items: center; justify-content: center; color: var(--asphalt-950); font-size: 30px; margin-bottom: 12px;" class="gold-button-bg"><i class="fa-solid fa-trophy"></i></div>
+      <h2 style="font-size: 24px; font-weight: 900; margin: 0 0 16px;">Подорож завершена!</h2>
+      <div class="glass-card-asphalt" style="border-radius: 16px; padding: 16px; border: 1px solid rgba(212, 175, 55, 0.4); background: rgba(21, 24, 30, 0.8); margin-bottom: 16px;">
+        <span style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700;">Загальна оцінка</span>
+        <div id="final-total-score" class="gold-gradient-text" style="font-size: 48px; font-weight: 900; line-height: 1.2;">0.0</div>
+        <div id="final-context" style="font-size: 12px; color: #94a3b8;"></div>
+      </div>
+      <div class="score-grid">
+        <div class="score-card glass-card-asphalt"><span class="score-card-label">Етап 1 (Карта)</span><span class="score-card-val" id="final-s1">0.0</span></div>
+        <div class="score-card glass-card-asphalt"><span class="score-card-label">Етап 2 (Історія)</span><span class="score-card-val" id="final-s2">0.0</span></div>
+      </div>
+      <div class="journal-box glass-card-asphalt">
+        <div class="journal-title">Дані для журналу:</div>
+        <div>Клас: <span id="journal-class" style="font-weight: 600;">—</span></div>
+        <div>Маршрут: <span id="journal-word" style="font-weight: 600;">—</span></div>
+        <div>Оцінка: <span id="journal-score" class="text-gold-300" style="font-weight: 600;">—</span></div>
+      </div>
+      <button onclick="location.reload()" class="glass-card-asphalt" style="width: 100%; padding: 14px; border-radius: 16px; color: var(--gold-300); font-weight: 700; font-size: 12px; cursor: pointer; border: 1px solid rgba(212, 175, 55, 0.4);">Завершити</button>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
     const GEOGRAPHY_ITEMS = [
       { id: '1', name: 'мис Рас-Енгела', lat: 37.348, lng: 9.845, category: 'EXTREME', desc: 'Північна крайня точка' },
       { id: '2', name: 'мис Агульяс (Голковий)', lat: -34.833, lng: 20.000, category: 'EXTREME', desc: 'Південна крайня точка' },
