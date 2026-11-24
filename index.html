@@ -26,28 +26,36 @@
   </script>
 
   <style>
-    * { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-    html { height: 100%; height: -webkit-fill-available; }
-    body { height: 100%; min-height: -webkit-fill-available; margin: 0; padding: 0; overflow: hidden; background-color: #0F1115; color: #F3F4F6; font-family: 'Inter', sans-serif; padding-bottom: env(safe-area-inset-bottom, 0); }
+    * { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; box-sizing: border-box; }
+    html, body { height: 100%; height: 100dvh; min-height: 100dvh; }
+    body {
+      margin: 0; padding: 0; overflow: hidden;
+      background-color: #0F1115; color: #F3F4F6;
+      font-family: 'Inter', sans-serif;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      display: flex; flex-direction: column;
+    }
 
-    .glass-panel-asphalt { background: rgba(26, 30, 38, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.22); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1); }
-    .glass-card-asphalt { background: rgba(35, 41, 52, 0.75); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+    .glass-panel-asphalt { background: rgba(26, 30, 38, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.22); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1); }
+    .glass-card-asphalt { background: rgba(35, 41, 52, 0.8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
     .gold-gradient-text { background: linear-gradient(135deg, #FFF1C5 0%, #D4AF37 50%, #9A7B1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .gold-button-bg { background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #AA8820 100%); color: #0F1115; box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3); }
     .gold-button-bg:active { transform: scale(0.97); }
 
-    #map { height: 100%; width: 100%; background: #0B0D10; z-index: 0; }
+    main { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden; }
+
+    #map { position: absolute; inset: 0; height: 100%; width: 100%; background: #0B0D10; z-index: 0; }
     .leaflet-container { background: #0B0D10 !important; font-family: 'Inter', sans-serif; }
     .leaflet-control-attribution { background: rgba(15, 17, 21, 0.7) !important; color: #9CA3AF !important; font-size: 10px !important; backdrop-filter: blur(6px); border-radius: 6px; padding: 2px 8px !important; margin: 6px !important; }
     .leaflet-control-attribution a { color: #D4AF37 !important; }
 
     .target-marker-icon { display: flex; align-items: center; justify-content: center; }
-    .target-pin { width: 26px; height: 26px; border-radius: 50%; background: rgba(212, 175, 55, 0.25); border: 2px solid #D4AF37; box-shadow: 0 0 14px rgba(212, 175, 55, 0.6); cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; position: relative; }
+    .target-pin { width: 28px; height: 28px; border-radius: 50%; background: rgba(212, 175, 55, 0.28); border: 2px solid #D4AF37; box-shadow: 0 0 14px rgba(212, 175, 55, 0.6); cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; position: relative; }
     .target-pin::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #F3E5AB; }
     .target-pin.pulse { animation: gold-pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1); }
-    .target-pin.correct-1 { background: rgba(34, 197, 94, 0.4); border-color: #22c55e; box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); cursor: default; }
-    .target-pin.correct-2 { background: rgba(234, 179, 8, 0.4); border-color: #eab308; box-shadow: 0 0 16px rgba(234, 179, 8, 0.6); cursor: default; }
-    .target-pin.correct-3 { background: rgba(239, 68, 68, 0.4); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.6); cursor: default; }
+    .target-pin.correct-1 { background: rgba(34, 197, 94, 0.45); border-color: #22c55e; box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); cursor: default; }
+    .target-pin.correct-2 { background: rgba(234, 179, 8, 0.45); border-color: #eab308; box-shadow: 0 0 16px rgba(234, 179, 8, 0.6); cursor: default; }
+    .target-pin.correct-3 { background: rgba(239, 68, 68, 0.45); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.6); cursor: default; }
 
     @keyframes gold-pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); } 70% { transform: scale(1.25); box-shadow: 0 0 0 14px rgba(212, 175, 55, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
 
@@ -59,43 +67,68 @@
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
     .shake-anim { animation: shake 0.4s ease-in-out; }
 
-    .narrative { font-size: 0.88rem; line-height: 1.45; color: #F3F4F6; font-style: italic; border-left: 3px solid #D4AF37; padding-left: 10px; margin-bottom: 10px; }
-    .story-choice { min-height: 46px; padding: 10px 14px; background: rgba(35, 41, 52, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #F3F4F6; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; line-height: 1.3; transition: all 0.2s; margin-bottom: 6px; width: 100%; }
-    .story-choice.correct { background: rgba(34,197,94,0.25) !important; border-color: #22c55e !important; color: #4ade80 !important; }
-    .story-choice.incorrect { background: rgba(239,68,68,0.25) !important; border-color: #ef4444 !important; color: #f87171 !important; }
+    .narrative { font-size: 0.82rem; line-height: 1.4; color: #F3F4F6; font-style: italic; border-left: 3px solid #D4AF37; padding-left: 10px; margin-bottom: 8px; }
+    .story-choice { min-height: 44px; padding: 9px 12px; background: rgba(35, 41, 52, 0.92); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #F3F4F6; font-weight: 600; font-size: 0.82rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 9px; line-height: 1.3; transition: all 0.2s; margin-bottom: 6px; width: 100%; }
+    .story-choice.correct { background: rgba(34,197,94,0.28) !important; border-color: #22c55e !important; color: #4ade80 !important; }
+    .story-choice.incorrect { background: rgba(239,68,68,0.28) !important; border-color: #ef4444 !important; color: #f87171 !important; }
+    .story-choice:disabled { opacity: 1; }
 
-    .class-btn { padding: 14px 10px; border-radius: 14px; background: rgba(35,41,52,0.9); border: 1px solid rgba(255,255,255,0.1); color: #F3F4F6; font-weight: 700; font-size: 1rem; transition: all 0.2s; }
+    .class-btn { padding: 13px 8px; border-radius: 14px; background: rgba(35,41,52,0.92); border: 1px solid rgba(255,255,255,0.1); color: #F3F4F6; font-weight: 700; font-size: 0.95rem; transition: all 0.2s; }
     .class-btn.active { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%); color: #0F1115; border-color: #FFF1C5; box-shadow: 0 0 18px rgba(212,175,55,0.7); }
+
+    /* Мобільна адаптація */
+    @media (max-width: 640px) {
+      header { padding: 6px 10px !important; }
+      header h1 { font-size: 11px !important; }
+      header .w-10 { width: 34px !important; height: 34px !important; font-size: 14px !important; }
+      #stage1-nav { padding: 4px 6px !important; gap: 4px !important; }
+      .cat-tab { padding: 6px 10px !important; font-size: 10px !important; }
+      #stage1-footer { padding: 6px 8px !important; }
+      #labels-tray { min-height: 44px !important; gap: 6px !important; }
+      .chip { padding: 8px 10px !important; font-size: 11px !important; }
+      #instruction-toast { top: 6px !important; padding: 6px 10px !important; }
+      #instruction-toast p { font-size: 10px !important; }
+      #btn-recenter { bottom: 14px !important; right: 10px !important; width: 42px !important; height: 42px !important; }
+      #stage2-bar { padding: 6px !important; }
+      #stage2-bar > div { padding: 10px !important; max-height: 60dvh; overflow-y: auto; }
+      .narrative { font-size: 0.78rem !important; }
+      #story-question { font-size: 0.82rem !important; margin-bottom: 6px !important; }
+      .story-choice { font-size: 0.78rem !important; min-height: 42px !important; padding: 8px 10px !important; }
+    }
+    @media (max-width: 380px) {
+      .cat-tab { font-size: 9px !important; padding: 5px 8px !important; }
+      .story-choice { font-size: 0.74rem !important; }
+    }
   </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden antialiased select-none">
+<body class="antialiased select-none">
 
-  <header class="glass-panel-asphalt z-20 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 border-b border-gold-500/30 shrink-0">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-2xl gold-button-bg flex items-center justify-center font-black text-lg">
+  <header class="glass-panel-asphalt z-20 px-3 py-2 flex items-center justify-between gap-2 border-b border-gold-500/30 shrink-0">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 rounded-2xl gold-button-bg flex items-center justify-center font-black text-lg shrink-0">
         <i class="fa-solid fa-earth-africa"></i>
       </div>
-      <div>
-        <h1 class="text-xs sm:text-base font-extrabold tracking-wide font-display text-slate-100 flex items-center gap-2">
-          АФРИКА <span class="bg-gold-500/20 text-gold-300 text-[10px] sm:text-xs px-2 py-0.5 rounded-full border border-gold-500/40">7 клас НУШ</span>
+      <div class="min-w-0">
+        <h1 class="text-xs sm:text-base font-extrabold tracking-wide font-display text-slate-100 flex items-center gap-2 whitespace-nowrap">
+          АФРИКА <span class="bg-gold-500/20 text-gold-300 text-[9px] sm:text-xs px-1.5 py-0.5 rounded-full border border-gold-500/40">7 кл.</span>
         </h1>
-        <p class="text-[11px] text-slate-400 font-medium truncate max-w-[160px] sm:max-w-xs">
-          Клас: <span class="text-gold-400 font-semibold" id="class-label">—</span> · Слово: <span class="text-gold-400 font-semibold" id="word-label">—</span>
+        <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate max-w-[150px] sm:max-w-xs">
+          <span class="text-gold-400 font-semibold" id="class-label">—</span> · <span class="text-gold-400 font-semibold" id="word-label">—</span>
         </p>
       </div>
     </div>
 
-    <div class="flex items-center space-x-2 sm:space-x-4">
-      <button id="btn-finish-early" class="hidden glass-card-asphalt px-3 py-1.5 rounded-2xl border border-rose-500/40 text-rose-400 hover:bg-rose-950/30 transition-all text-xs font-bold flex items-center gap-2" onclick="confirmEarlyFinish()">
+    <div class="flex items-center space-x-2 shrink-0">
+      <button id="btn-finish-early" class="hidden glass-card-asphalt px-2.5 py-1.5 rounded-2xl border border-rose-500/40 text-rose-400 transition-all text-[10px] font-bold flex items-center gap-1" onclick="confirmEarlyFinish()">
         <i class="fa-solid fa-flag-checkered"></i> <span class="hidden sm:inline">Завершити</span>
       </button>
 
-      <div class="glass-card-asphalt px-3.5 py-1.5 rounded-2xl border border-gold-500/30 flex items-center space-x-2.5">
-        <i class="fa-solid fa-award text-gold-400 text-sm sm:text-base"></i>
+      <div class="glass-card-asphalt px-2.5 py-1.5 rounded-2xl border border-gold-500/30 flex items-center space-x-2">
+        <i class="fa-solid fa-award text-gold-400 text-xs"></i>
         <div class="text-right">
-          <div class="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Оцінка</div>
-          <div class="text-xs sm:text-base font-extrabold text-gold-300 leading-none">
-            <span id="current-score">0.0</span> <span class="text-[10px] text-slate-400 font-normal">/ 12.0</span>
+          <div class="text-[8px] text-slate-400 font-semibold uppercase tracking-wider">Оцінка</div>
+          <div class="text-[11px] sm:text-sm font-extrabold text-gold-300 leading-none whitespace-nowrap">
+            <span id="current-score">0.0</span> <span class="text-[9px] text-slate-400 font-normal">/ 12</span>
           </div>
         </div>
       </div>
@@ -103,61 +136,61 @@
   </header>
 
   <nav id="stage1-nav" class="glass-panel-asphalt z-10 px-2 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar border-b border-white/5 shrink-0">
-    <button data-cat="ALL" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md">Всі об'єкти</button>
-    <button data-cat="EXTREME" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all">📍 Крайні точки</button>
-    <button data-cat="WATER" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all">🌊 Води</button>
-    <button data-cat="RELIEF" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all">⛰️ Рельєф</button>
-    <button data-cat="DESERT" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all">🏜️ Пустелі</button>
+    <button data-cat="ALL" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md whitespace-nowrap">Всі</button>
+    <button data-cat="EXTREME" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">📍 Точки</button>
+    <button data-cat="WATER" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">🌊 Води</button>
+    <button data-cat="RELIEF" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">⛰️ Рельєф</button>
+    <button data-cat="DESERT" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">🏜️ Пустелі</button>
   </nav>
 
-  <main class="relative flex-1 w-full h-full overflow-hidden">
-    <div id="map" class="z-0"></div>
+  <main>
+    <div id="map"></div>
 
-    <div id="instruction-toast" class="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[92%] sm:w-auto glass-panel-asphalt px-4 py-2 rounded-2xl border border-gold-500/30 text-center shadow-2xl transition-all duration-300 pointer-events-none">
+    <div id="instruction-toast" class="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[94%] sm:w-auto glass-panel-asphalt px-3 py-2 rounded-2xl border border-gold-500/30 text-center shadow-2xl transition-all duration-300 pointer-events-none">
       <p class="text-xs text-slate-200 font-medium flex items-center justify-center gap-2" id="toast-text">
         <i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i>
-        <span>1. Оберіть назву знизу &nbsp;→&nbsp; 2. Торкніться мітки на карті</span>
+        <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>
       </p>
     </div>
 
-    <div id="stage2-bar" class="hidden absolute bottom-0 left-0 right-0 z-30 p-3 sm:p-5 pointer-events-none flex flex-col items-center">
-      <div class="w-full max-w-xl glass-panel-asphalt p-4 rounded-2xl border border-gold-500/40 pointer-events-auto shadow-2xl">
+    <div id="stage2-bar" class="hidden absolute bottom-0 left-0 right-0 z-30 p-3 pointer-events-none flex flex-col items-center">
+      <div class="w-full max-w-xl glass-panel-asphalt p-3.5 rounded-2xl border border-gold-500/40 pointer-events-auto shadow-2xl">
         <div id="story-narrative" class="narrative"></div>
-        <div id="story-question" class="text-sm font-bold text-gold-300 text-center mb-3"></div>
+        <div id="story-question" class="text-sm font-bold text-gold-300 text-center mb-2"></div>
         <div id="story-choices"></div>
-        <div id="story-consequence" class="text-xs p-2.5 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-200 mt-2 hidden"></div>
+        <div id="story-consequence" class="text-xs p-2 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-200 mt-2 hidden"></div>
       </div>
     </div>
 
-    <button id="btn-recenter" class="absolute bottom-24 right-4 z-10 w-11 h-11 rounded-2xl glass-panel-asphalt border border-gold-500/30 flex items-center justify-center text-gold-400 shadow-xl hover:bg-asphalt-800 active:scale-95 transition-all">
+    <button id="btn-recenter" class="absolute bottom-4 right-3 z-10 w-11 h-11 rounded-2xl glass-panel-asphalt border border-gold-500/30 flex items-center justify-center text-gold-400 shadow-xl hover:bg-asphalt-800 active:scale-95 transition-all">
       <i class="fa-solid fa-crosshairs text-base"></i>
     </button>
   </main>
 
-  <footer id="stage1-footer" class="glass-panel-asphalt z-20 px-3 py-3 border-t border-gold-500/30 flex flex-col gap-2 shrink-0">
+  <footer id="stage1-footer" class="glass-panel-asphalt z-20 px-2 py-2 border-t border-gold-500/30 flex flex-col gap-1.5 shrink-0">
     <div class="flex items-center justify-between text-xs px-1">
-      <span class="text-slate-400 font-semibold flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+      <span class="text-slate-400 font-semibold flex items-center gap-1.5 text-[10px] uppercase tracking-wider">
         <i class="fa-solid fa-layer-group text-gold-400"></i> Залишилось: <span id="remaining-count" class="text-gold-300 font-bold">28</span> / 28
       </span>
-      <span class="text-[11px] text-gold-400 font-medium" id="hint-action">Оберіть назву зі списку</span>
+      <span class="text-[10px] text-gold-400 font-medium truncate" id="hint-action">Обери назву зі списку</span>
     </div>
-    <div id="labels-tray" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1 touch-pan-x items-center min-h-[50px]"></div>
+    <div id="labels-tray" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1 touch-pan-x items-center min-h-[46px]"></div>
   </footer>
 
   <!-- СТАРТОВИЙ ЕКРАН -->
-  <div id="modal-start" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/85 backdrop-blur-md px-4">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/40 shadow-2xl space-y-5 relative overflow-hidden">
-      <div class="text-center space-y-2">
-        <div class="inline-flex w-16 h-16 rounded-3xl gold-button-bg items-center justify-center text-asphalt-950 text-3xl shadow-lg shadow-gold-500/30 mb-1">
+  <div id="modal-start" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/85 backdrop-blur-md px-4 overflow-y-auto">
+    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-5 border border-gold-500/40 shadow-2xl space-y-4 my-4">
+      <div class="text-center space-y-1">
+        <div class="inline-flex w-14 h-14 rounded-3xl gold-button-bg items-center justify-center text-asphalt-950 text-2xl shadow-lg shadow-gold-500/30">
           <i class="fa-solid fa-compass"></i>
         </div>
-        <h2 class="text-2xl font-black font-display text-slate-100">Африка: Подорож</h2>
-        <p class="text-xs text-slate-300 leading-relaxed">Тренажер НУШ (7 клас). Етап 1: Карта. Етап 2: Історія.</p>
+        <h2 class="text-xl font-black font-display text-slate-100">Африка: Подорож</h2>
+        <p class="text-[11px] text-slate-300 leading-relaxed">Етап 1: Карта. Етап 2: Історія.</p>
       </div>
 
-      <div class="space-y-2">
-        <label class="block text-xs font-semibold text-gold-300 uppercase tracking-wider">Оберіть клас:</label>
-        <div id="class-grid" class="grid grid-cols-5 gap-2">
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold text-gold-300 uppercase tracking-wider">Клас:</label>
+        <div id="class-grid" class="grid grid-cols-5 gap-1.5">
           <button class="class-btn" data-class="7А">7А</button>
           <button class="class-btn" data-class="7Б">7Б</button>
           <button class="class-btn" data-class="7В">7В</button>
@@ -166,9 +199,9 @@
         </div>
       </div>
 
-      <div class="space-y-2">
-        <label class="block text-xs font-semibold text-gold-300 uppercase tracking-wider">Оберіть слово-маршрут:</label>
-        <div id="word-grid" class="grid grid-cols-2 gap-2">
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-semibold text-gold-300 uppercase tracking-wider">Слово-маршрут:</label>
+        <div id="word-grid" class="grid grid-cols-2 gap-1.5">
           <button class="class-btn" data-word="forest">🌿 Ліс</button>
           <button class="class-btn" data-word="sahara">🏜️ Сахара</button>
           <button class="class-btn" data-word="savanna">🦒 Савана</button>
@@ -178,7 +211,7 @@
         </div>
       </div>
 
-      <button id="btn-start-game" disabled class="w-full py-4 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">РОЗПОЧАТИ</button>
+      <button id="btn-start-game" disabled class="w-full py-3.5 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">РОЗПОЧАТИ</button>
     </div>
   </div>
 
@@ -208,14 +241,14 @@
     </div>
   </div>
 
-  <div id="modal-victory" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/50 shadow-2xl text-center space-y-4">
+  <div id="modal-victory" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden overflow-y-auto">
+    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/50 shadow-2xl text-center space-y-4 my-4">
       <div class="inline-flex w-16 h-16 rounded-3xl gold-button-bg items-center justify-center text-asphalt-950 text-3xl shadow-xl mb-1">
         <i class="fa-solid fa-trophy"></i>
       </div>
       <h2 class="text-2xl font-black font-display text-slate-100">Подорож завершена!</h2>
 
-      <div class="glass-card-asphalt rounded-2xl p-5 border border-gold-500/40 bg-asphalt-900/80 space-y-1">
+      <div class="glass-card-asphalt rounded-2xl p-4 border border-gold-500/40 bg-asphalt-900/80 space-y-1">
         <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Загальна оцінка</span>
         <div class="text-5xl font-black gold-gradient-text py-1" id="final-total-score">0.0</div>
         <div class="text-xs text-slate-400" id="final-context"></div>
@@ -232,7 +265,7 @@
         </div>
       </div>
 
-      <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5 text-left text-xs text-slate-300">
+      <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5 text-left text-xs text-slate-300 space-y-0.5">
         <div class="font-bold text-gold-300 mb-1">Дані для журналу:</div>
         <div>Клас: <span id="journal-class" class="font-semibold">—</span></div>
         <div>Маршрут: <span id="journal-word" class="font-semibold">—</span></div>
@@ -265,7 +298,7 @@
       { id: '18', name: 'Драконові гори', lat: -29.000, lng: 29.500, category: 'RELIEF', desc: 'Гори на південному сході' },
       { id: '19', name: 'Капські гори', lat: -33.500, lng: 19.500, category: 'RELIEF', desc: 'Гори на крайньому півдні' },
       { id: '20', name: 'в-н Кіліманджаро', lat: -3.067, lng: 37.355, category: 'RELIEF', desc: 'Найвища точка Африки' },
-      { id: '21', name: 'Ефіопське нагір\'я', lat: 9.000, lng: 39.500, category: 'RELIEF', desc: 'Високе нагір\'я на сході' },
+      { id: '21', name: "Ефіопське нагір'я", lat: 9.000, lng: 39.500, category: 'RELIEF', desc: "Високе нагір'я на сході" },
       { id: '22', name: 'Східноафриканське плато', lat: -3.000, lng: 35.000, category: 'RELIEF', desc: 'Велике плато' },
       { id: '23', name: 'пустеля Сахара', lat: 23.000, lng: 12.000, category: 'DESERT', desc: 'Найбільша тропічна пустеля' },
       { id: '24', name: 'пустеля Наміб', lat: -24.500, lng: 15.000, category: 'DESERT', desc: 'Прибережна пустеля' },
@@ -436,6 +469,7 @@
     let storyTaskIdx = 0;
     let storyScore = 0;
     let storyAttempts = 0;
+    let sceneLocked = false;
     let currentRoute = null;
 
     let map = null;
@@ -467,16 +501,52 @@
     function triggerVibration(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
 
     function initMap() {
-      map = L.map('map', { zoomControl: false, attributionControl: true, minZoom: 2.5, maxZoom: 7 }).setView([2.0, 16.0], 3.5);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 19 }).addTo(map);
+      map = L.map('map', {
+        zoomControl: false,
+        attributionControl: true,
+        minZoom: 2,
+        maxZoom: 7,
+        worldCopyJump: true
+      }).setView([2.0, 16.0], 3);
+
+      // Основний шар: CARTO dark. detectRetina: true підставляє {r} коректно.
+      const carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OSM &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+        detectRetina: true
+      }).addTo(map);
+
+      // Fallback: якщо CARTO не вантажиться (шкільна мережа, блокування) — підключаємо OSM
+      let fallbackAdded = false;
+      carto.on('tileerror', () => {
+        if (fallbackAdded) return;
+        fallbackAdded = true;
+        console.warn('CARTO tiles failed — switching to OpenStreetMap');
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+      });
+
       map.on('click', () => deselectAllChips());
       renderTargetMarkers();
+
+      // Після зміни розміру контейнера (мобільні браузери, адресний рядок) — перерахувати розмір
+      setTimeout(() => map.invalidateSize(), 300);
+      window.addEventListener('resize', () => map.invalidateSize());
+      window.addEventListener('orientationchange', () => setTimeout(() => map.invalidateSize(), 300));
     }
 
     function renderTargetMarkers() {
       GEOGRAPHY_ITEMS.forEach(item => {
         attempts[item.id] = 0;
-        const customIcon = L.divIcon({ className: 'target-marker-icon', html: `<div id="pin-${item.id}" class="target-pin pulse" data-id="${item.id}"></div>`, iconSize: [26, 26], iconAnchor: [13, 13] });
+        const customIcon = L.divIcon({
+          className: 'target-marker-icon',
+          html: `<div id="pin-${item.id}" class="target-pin pulse" data-id="${item.id}"></div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
         const marker = L.marker([item.lat, item.lng], { icon: customIcon }).addTo(map);
         marker.on('click', (e) => { L.DomEvent.stopPropagation(e); AudioEngine.init(); handleTargetClick(item); });
         markersMap[item.id] = marker;
@@ -485,23 +555,25 @@
 
     function renderChipsTray() {
       const tray = document.getElementById('labels-tray');
+      const scrollLeft = tray.scrollLeft;
       tray.innerHTML = '';
       let itemsToRender = GEOGRAPHY_ITEMS.filter(i => !completedItems.has(i.id));
       if (activeCategory !== 'ALL') itemsToRender = itemsToRender.filter(i => i.category === activeCategory);
       itemsToRender.sort(() => Math.random() - 0.5);
 
       if (itemsToRender.length === 0 && completedItems.size < GEOGRAPHY_ITEMS.length) {
-        tray.innerHTML = `<span class="text-xs text-slate-400 italic px-2">Всі об'єкти цієї категорії уже позначені! Перемкніть категорію вище.</span>`;
+        tray.innerHTML = `<span class="text-xs text-slate-400 italic px-2">Всі об'єкти цієї категорії уже позначені! Перемкніть категорію.</span>`;
         return;
       }
       itemsToRender.forEach(item => {
         const chip = document.createElement('button');
         chip.id = `chip-${item.id}`;
-        chip.className = `glass-card-asphalt px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 border border-white/10 hover:border-gold-500/40 whitespace-nowrap transition-all duration-200 shrink-0 flex items-center gap-1.5 active:scale-95`;
+        chip.className = `chip glass-card-asphalt px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 border border-white/10 hover:border-gold-500/40 whitespace-nowrap transition-all duration-200 shrink-0 flex items-center gap-1.5 active:scale-95`;
         chip.innerHTML = `<i class="fa-solid fa-location-dot text-gold-400 text-[10px]"></i> ${item.name}`;
         chip.addEventListener('click', (e) => { e.stopPropagation(); AudioEngine.init(); selectChip(item.id); });
         tray.appendChild(chip);
       });
+      tray.scrollLeft = scrollLeft;
       document.getElementById('remaining-count').textContent = GEOGRAPHY_ITEMS.length - completedItems.size;
     }
 
@@ -513,15 +585,15 @@
       const chipEl = document.getElementById(`chip-${id}`);
       if (chipEl) chipEl.classList.add('chip-selected');
       const targetItem = GEOGRAPHY_ITEMS.find(i => i.id === id);
-      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-crosshairs text-gold-400 animate-pulse"></i> <span>Знайдіть на карті: <strong class="text-gold-300 font-bold">${targetItem.name}</strong></span>`;
-      document.getElementById('hint-action').textContent = `Вибрано: ${targetItem.name}`;
+      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-crosshairs text-gold-400 animate-pulse"></i> <span>Знайди: <strong class="text-gold-300 font-bold">${targetItem.name}</strong></span>`;
+      document.getElementById('hint-action').textContent = `Обрано: ${targetItem.name}`;
     }
 
     function deselectAllChips() {
       selectedChipId = null;
       document.querySelectorAll('#labels-tray button').forEach(el => el.classList.remove('chip-selected'));
-      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i> <span>1. Оберіть назву знизу &nbsp;→&nbsp; 2. Торкніться мітки на карті</span>`;
-      document.getElementById('hint-action').textContent = `Оберіть назву об'єкта`;
+      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i> <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>`;
+      document.getElementById('hint-action').textContent = `Обери назву об'єкта`;
     }
 
     function handleTargetClick(clickedItem) {
@@ -532,34 +604,39 @@
       }
       if (completedItems.has(clickedItem.id)) return;
 
-      const currentAttempt = attempts[clickedItem.id] + 1;
+      // Спроба рахується ЛИШЕ якщо клікнули саме по обраній мітці.
+      // Клік по «чужій» мітці не штрафує.
+      if (selectedChipId !== clickedItem.id) {
+        AudioEngine.playError();
+        triggerVibration([80, 40, 80]);
+        const pinEl = document.getElementById(`pin-${clickedItem.id}`);
+        if (pinEl) { pinEl.classList.add('shake-anim'); setTimeout(() => pinEl.classList.remove('shake-anim'), 400); }
+        return;
+      }
+
+      // Правильне попадання
+      const currentAttempt = (attempts[clickedItem.id] || 0) + 1;
       attempts[clickedItem.id] = currentAttempt;
       const pinEl = document.getElementById(`pin-${clickedItem.id}`);
 
-      if (selectedChipId === clickedItem.id) {
-        completedItems.add(clickedItem.id);
-        let earnedPoints = 0; let attemptClass = "";
-        if (currentAttempt === 1) { earnedPoints = POINT_FIRST_TRY; attemptClass = "correct-1"; AudioEngine.playSuccess(); }
-        else if (currentAttempt === 2) { earnedPoints = POINT_SECOND_TRY; attemptClass = "correct-2"; AudioEngine.playSuccess(); }
-        else { earnedPoints = 0.0; attemptClass = "correct-3"; AudioEngine.playError(); }
+      completedItems.add(clickedItem.id);
+      let earnedPoints = 0; let attemptClass = "";
+      if (currentAttempt === 1) { earnedPoints = POINT_FIRST_TRY; attemptClass = "correct-1"; AudioEngine.playSuccess(); }
+      else if (currentAttempt === 2) { earnedPoints = POINT_SECOND_TRY; attemptClass = "correct-2"; AudioEngine.playSuccess(); }
+      else { earnedPoints = 0.0; attemptClass = "correct-3"; AudioEngine.playError(); }
 
-        score += earnedPoints;
-        document.getElementById('current-score').textContent = Math.min(12.0, score).toFixed(1);
+      score += earnedPoints;
+      document.getElementById('current-score').textContent = Math.min(12.0, score).toFixed(1);
 
-        if (pinEl) { pinEl.className = `target-pin ${attemptClass}`; pinEl.innerHTML = `<i class="fa-solid fa-check text-[10px] text-white"></i>`; }
-        const marker = markersMap[clickedItem.id];
-        marker.bindPopup(`<div class="text-center font-bold text-xs py-0.5 px-1 text-slate-100">${clickedItem.name}<div class="text-[10px] font-normal text-slate-300 mt-0.5">${clickedItem.desc}</div></div>`, { closeButton: false }).openPopup();
+      if (pinEl) { pinEl.className = `target-pin ${attemptClass}`; pinEl.innerHTML = `<i class="fa-solid fa-check text-[10px] text-white"></i>`; }
+      const marker = markersMap[clickedItem.id];
+      marker.bindPopup(`<div class="text-center font-bold text-xs py-0.5 px-1 text-slate-100">${clickedItem.name}<div class="text-[10px] font-normal text-slate-300 mt-0.5">${clickedItem.desc}</div></div>`, { closeButton: false }).openPopup();
 
-        deselectAllChips();
-        renderChipsTray();
-        triggerVibration([40, 30, 40]);
+      deselectAllChips();
+      renderChipsTray();
+      triggerVibration([40, 30, 40]);
 
-        if (completedItems.size === GEOGRAPHY_ITEMS.length) setTimeout(finishStage1, 800);
-      } else {
-        AudioEngine.playError();
-        triggerVibration([100, 50, 100]);
-        if (pinEl) { pinEl.classList.add('shake-anim'); setTimeout(() => pinEl.classList.remove('shake-anim'), 400); }
-      }
+      if (completedItems.size === GEOGRAPHY_ITEMS.length) setTimeout(finishStage1, 800);
     }
 
     function confirmEarlyFinish() {
@@ -568,7 +645,7 @@
         document.getElementById('early-finish-text').innerHTML = `Ти знайшов <b>${completedItems.size} з ${GEOGRAPHY_ITEMS.length}</b> об'єктів.<br><br>Якщо завершиш зараз, за <b>${remaining} незнайдених</b> об'єктів буде нараховано 0 балів. Твоя оцінка становитиме <b>${Math.min(12.0, score).toFixed(1)}</b> з 12.0.`;
         document.getElementById('modal-early-finish').classList.remove('hidden');
       } else if (currentStage === 2) {
-        const totalScenes = currentRoute ? currentRoute.scenes.length : 10;
+        const totalScenes = currentRoute?.scenes.length ?? 9;
         const remaining = totalScenes - storyTaskIdx;
         const currentS2 = Math.min(12.0, (storyScore / totalScenes) * 12).toFixed(1);
         document.getElementById('early-finish-text').innerHTML = `Ти пройшов <b>${storyTaskIdx} з ${totalScenes}</b> сцен.<br><br>Якщо завершиш зараз, за <b>${remaining} сцен</b>, що залишилися, буде нараховано 0 балів. Твоя оцінка за історію становитиме <b>${currentS2}</b> з 12.0.`;
@@ -602,9 +679,10 @@
 
       routeId = currentWord;
       currentRoute = ROUTES.find(r => r.id === routeId) || ROUTES[0];
-      storyTaskIdx = 0; storyScore = 0;
+      storyTaskIdx = 0; storyScore = 0; storyAttempts = 0; sceneLocked = false;
 
       Object.values(markersMap).forEach(m => map.removeLayer(m));
+      markersMap = {};
 
       loadStoryScene();
     }
@@ -612,68 +690,103 @@
     function loadStoryScene() {
       if (storyTaskIdx >= currentRoute.scenes.length) { finishGame(); return; }
       storyAttempts = 0;
+      sceneLocked = false;
       const sc = currentRoute.scenes[storyTaskIdx];
 
       document.getElementById('story-narrative').textContent = sc.n;
       document.getElementById('story-question').textContent = sc.q;
-      document.getElementById('story-consequence').classList.add('hidden');
+      const cons = document.getElementById('story-consequence');
+      cons.classList.add('hidden');
+      cons.textContent = '';
+      cons.className = "text-xs p-2 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-200 mt-2 hidden";
 
       const choicesCont = document.getElementById('story-choices');
       choicesCont.innerHTML = '';
       const letters = ["А","Б","В","Г","Д"];
+      // Перемішуємо, але запам'ятовуємо правильну кнопку через dataset
       const shuffled = [...sc.o].sort(() => 0.5 - Math.random());
 
       shuffled.forEach((o, i) => {
         const btn = document.createElement('button');
         btn.className = 'story-choice';
+        btn.dataset.ok = o.ok ? 'true' : 'false';
+        btn.dataset.reason = o.r || '';
         btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-gold-500/20 text-gold-300 flex items-center justify-center font-bold text-xs shrink-0">${letters[i]}</span> <span>${o.t}</span>`;
-        btn.onclick = () => handleStoryAnswer(btn, o);
+        btn.onclick = () => handleStoryAnswer(btn);
         choicesCont.appendChild(btn);
       });
 
-      if (window.storyMarker) map.removeLayer(window.storyMarker);
-      const icon = L.divIcon({ className: 'target-marker-icon', html: `<div class="target-pin pulse" style="background:#3b82f6; border-color:#60a5fa;"></div>`, iconSize: [26, 26], iconAnchor: [13, 13] });
+      if (window.storyMarker) { map.removeLayer(window.storyMarker); window.storyMarker = null; }
+      const icon = L.divIcon({ className: 'target-marker-icon', html: `<div class="target-pin pulse" style="background:#3b82f6; border-color:#60a5fa;"></div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
       window.storyMarker = L.marker(sc.c, { icon }).addTo(map);
-      map.flyTo(sc.c, 5, { duration: 1 });
+      map.flyTo(sc.c, 5, { duration: 0.8 });
     }
 
-    function handleStoryAnswer(btn, opt) {
+    function handleStoryAnswer(btn) {
+      if (sceneLocked) return;
+
       storyAttempts++;
-      if (opt.ok) {
+      const isCorrect = btn.dataset.ok === 'true';
+      const cons = document.getElementById('story-consequence');
+
+      if (isCorrect) {
+        sceneLocked = true;
         btn.classList.add('correct');
         if (storyAttempts === 1) storyScore += 1.0;
         else if (storyAttempts === 2) storyScore += 0.5;
+        // 3+ спроби — 0 балів
 
-        const cons = document.getElementById('story-consequence');
-        cons.textContent = "✓ " + opt.r;
-        cons.className = "text-xs p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 mt-2 block";
+        cons.textContent = "✓ " + btn.dataset.reason;
+        cons.className = "text-xs p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 mt-2 block";
 
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
         AudioEngine.playSuccess();
-        setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 1800);
-      } else {
-        btn.classList.add('incorrect'); btn.disabled = true;
-        const cons = document.getElementById('story-consequence');
-        cons.textContent = "✗ " + opt.r;
-        cons.className = "text-xs p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
-        AudioEngine.playError();
+        setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 1700);
+        return;
       }
+
+      // Неправильна відповідь
+      btn.classList.add('incorrect');
+      btn.disabled = true;
+      AudioEngine.playError();
+      triggerVibration([60, 40, 60]);
+
+      if (storyAttempts >= 2) {
+        // Друга помилка — показуємо правильну і закриваємо сцену (0 балів)
+        sceneLocked = true;
+        cons.textContent = "✗ Друга помилка. Правильна відповідь підсвічена. Балів за цю сцену — 0.";
+        cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
+
+        document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
+        const correctBtn = [...document.querySelectorAll('.story-choice')].find(b => b.dataset.ok === 'true');
+        if (correctBtn) correctBtn.classList.add('correct');
+
+        setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 2200);
+        return;
+      }
+
+      // Перша помилка — НЕ показуємо правильну, даємо ще одну спробу
+      cons.textContent = "✗ Неправильно. Спробуй ще раз — правильну відповідь не підсвічую.";
+      cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
     }
 
     function finishGame() {
       document.getElementById('stage2-bar').classList.add('hidden');
       document.getElementById('btn-finish-early').classList.add('hidden');
-      const finalS2 = Math.min(12.0, (storyScore / currentRoute.scenes.length) * 12).toFixed(1);
-      const s1Grade = parseFloat(document.getElementById('inter-score').textContent);
+      if (window.storyMarker) { map.removeLayer(window.storyMarker); window.storyMarker = null; }
+
+      const totalScenes = currentRoute?.scenes.length ?? 9;
+      const finalS2 = Math.min(12.0, (storyScore / totalScenes) * 12).toFixed(1);
+      const s1Grade = parseFloat(document.getElementById('inter-score').textContent) || 0;
       const total = ((s1Grade + parseFloat(finalS2)) / 2).toFixed(1);
 
       document.getElementById('final-s1').textContent = s1Grade.toFixed(1);
       document.getElementById('final-s2').textContent = finalS2;
       document.getElementById('final-total-score').textContent = total;
-      document.getElementById('final-context').textContent = `${currentClass} · ${currentRoute.title}`;
+      document.getElementById('final-context').textContent = `${currentClass} · ${currentRoute?.title || '—'}`;
 
       document.getElementById('journal-class').textContent = currentClass;
-      document.getElementById('journal-word').textContent = currentRoute.title;
+      document.getElementById('journal-word').textContent = currentRoute?.title || '—';
       document.getElementById('journal-score').textContent = total;
 
       document.getElementById('modal-victory').classList.remove('hidden');
@@ -716,17 +829,22 @@
         currentClass = selectedClass;
         currentWord = selectedWord;
         document.getElementById('class-label').textContent = currentClass;
-        document.getElementById('word-label').textContent = ROUTES.find(r => r.id === currentWord).title;
+        const r = ROUTES.find(r => r.id === currentWord);
+        document.getElementById('word-label').textContent = r ? r.title : currentWord;
         document.getElementById('modal-start').classList.add('hidden');
         document.getElementById('btn-finish-early').classList.remove('hidden');
         renderChipsTray();
+        setTimeout(() => map.invalidateSize(), 200);
       });
 
       document.querySelectorAll('.cat-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
-          document.querySelectorAll('.cat-tab').forEach(t => { t.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all"; });
-          e.target.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md";
-          activeCategory = e.target.getAttribute('data-cat');
+          const target = e.currentTarget;
+          document.querySelectorAll('.cat-tab').forEach(t => {
+            t.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap";
+          });
+          target.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md whitespace-nowrap";
+          activeCategory = target.getAttribute('data-cat');
           deselectAllChips();
           renderChipsTray();
         });
@@ -738,7 +856,7 @@
       });
 
       document.getElementById('btn-recenter').addEventListener('click', () => {
-        if (map) map.flyTo([2.0, 16.0], 3.5, { duration: 1 });
+        if (map) map.flyTo([2.0, 16.0], 3, { duration: 0.8 });
       });
     });
   </script>
