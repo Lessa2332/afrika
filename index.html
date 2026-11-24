@@ -5,27 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Африка: Подорож дослідника (7 клас НУШ)</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Montserrat', 'sans-serif'] },
-          colors: {
-            asphalt: { 950: '#0F1115', 900: '#15181E', 800: '#1F232B', 700: '#2A303C', 600: '#3A4252' },
-            gold: { 300: '#F5E1A4', 400: '#EED380', 500: '#D4AF37', 600: '#AA8820', 700: '#7F6413' }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
+    /* ==================== БАЗОВІ СТИЛІ ==================== */
     * { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; box-sizing: border-box; }
     html, body { height: 100%; height: 100dvh; min-height: 100dvh; }
     body {
@@ -36,14 +24,26 @@
       display: flex; flex-direction: column;
     }
 
+    /* ==================== КОЛЬОРИ ТА УТИЛІТИ ==================== */
+    :root {
+      --gold-300: #F5E1A4; --gold-400: #EED380; --gold-500: #D4AF37; --gold-600: #AA8820;
+      --asphalt-950: #0F1115; --asphalt-900: #15181E; --asphalt-800: #1F232B; --asphalt-700: #2A303C;
+      --emerald-400: #4ade80; --emerald-500: #22c55e; --emerald-900: rgba(6, 78, 59, 0.4);
+      --rose-400: #f87171; --rose-500: #ef4444; --rose-900: rgba(127, 29, 29, 0.4);
+    }
+    .text-gold-300 { color: var(--gold-300); } .text-gold-400 { color: var(--gold-400); }
+    .bg-gold-500 { background-color: var(--gold-500); }
+    .text-slate-100 { color: #f1f5f9; } .text-slate-300 { color: #cbd5e1; }
+    .text-slate-400 { color: #94a3b8; } .text-asphalt-950 { color: var(--asphalt-950); }
+    
     .glass-panel-asphalt { background: rgba(26, 30, 38, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.22); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1); }
     .glass-card-asphalt { background: rgba(35, 41, 52, 0.8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
     .gold-gradient-text { background: linear-gradient(135deg, #FFF1C5 0%, #D4AF37 50%, #9A7B1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .gold-button-bg { background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #AA8820 100%); color: #0F1115; box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3); }
     .gold-button-bg:active { transform: scale(0.97); }
 
+    /* ==================== КАРТА ==================== */
     main { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden; }
-
     #map { position: absolute; inset: 0; height: 100%; width: 100%; background: #0B0D10; z-index: 0; }
     .leaflet-container { background: #0B0D10 !important; font-family: 'Inter', sans-serif; }
     .leaflet-control-attribution { background: rgba(15, 17, 21, 0.7) !important; color: #9CA3AF !important; font-size: 10px !important; backdrop-filter: blur(6px); border-radius: 6px; padding: 2px 8px !important; margin: 6px !important; }
@@ -54,186 +54,194 @@
     .leaflet-popup-content { margin: 8px 12px !important; color: #F3F4F6 !important; }
     .leaflet-popup-tip { background: rgba(26, 30, 38, 0.97) !important; border: 1px solid rgba(212, 175, 55, 0.5) !important; }
     .leaflet-popup-close-button { color: #D4AF37 !important; }
-    .leaflet-popup { z-index: 700 !important; }
 
+    /* Маркери */
     .target-marker-icon { display: flex; align-items: center; justify-content: center; }
     .target-pin { width: 28px; height: 28px; border-radius: 50%; background: rgba(212, 175, 55, 0.28); border: 2px solid #D4AF37; box-shadow: 0 0 14px rgba(212, 175, 55, 0.6); cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; position: relative; }
     .target-pin::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #F3E5AB; }
     .target-pin.pulse { animation: gold-pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1); }
-    .target-pin.correct-1, .target-pin.correct-2, .target-pin.correct-3 { cursor: default; animation: none; }
-    .target-pin.correct-1::after, .target-pin.correct-2::after, .target-pin.correct-3::after { display: none; }
-    .target-pin.correct-1 { background: rgba(34, 197, 94, 0.45); border-color: #22c55e; box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); }
-    .target-pin.correct-2 { background: rgba(234, 179, 8, 0.45); border-color: #eab308; box-shadow: 0 0 16px rgba(234, 179, 8, 0.6); }
-    .target-pin.correct-3 { background: rgba(239, 68, 68, 0.45); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.6); }
-
+    .target-pin.correct-1 { background: rgba(34, 197, 94, 0.45); border-color: #22c55e; box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); cursor: default; }
+    .target-pin.correct-2 { background: rgba(234, 179, 8, 0.45); border-color: #eab308; box-shadow: 0 0 16px rgba(234, 179, 8, 0.6); cursor: default; }
+    .target-pin.correct-3 { background: rgba(239, 68, 68, 0.45); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.6); cursor: default; }
     @keyframes gold-pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); } 70% { transform: scale(1.25); box-shadow: 0 0 0 14px rgba(212, 175, 55, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* ==================== ІНТЕРФЕЙС ==================== */
+    header { z-index: 20; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(212, 175, 55, 0.3); flex-shrink: 0; }
+    .logo-box { width: 40px; height: 40px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; flex-shrink: 0; }
+    .header-title { font-size: 14px; font-weight: 800; color: #f1f5f9; display: flex; align-items: center; gap: 6px; white-space: nowrap; margin: 0; }
+    .header-badge { background: rgba(212, 175, 55, 0.2); color: var(--gold-300); font-size: 10px; padding: 2px 6px; border-radius: 9999px; border: 1px solid rgba(212, 175, 55, 0.4); }
+    .header-sub { font-size: 11px; color: #94a3b8; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
 
+    .btn-finish { display: flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.4); color: var(--rose-400); font-size: 10px; font-weight: 700; transition: all 0.2s; }
+    .score-box { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); }
+    .score-label { font-size: 8px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .score-val { font-size: 12px; font-weight: 800; color: var(--gold-300); line-height: 1; white-space: nowrap; }
+    .score-total { font-size: 9px; color: #94a3b8; font-weight: normal; }
+
+    nav { z-index: 10; padding: 6px 8px; display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid rgba(255, 255, 255, 0.05); flex-shrink: 0; scrollbar-width: none; }
+    nav::-webkit-scrollbar { display: none; }
+    .cat-tab { padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 500; color: #cbd5e1; transition: all 0.2s; white-space: nowrap; border: none; background: transparent; cursor: pointer; }
+    .cat-tab.active { background: var(--gold-500); color: var(--asphalt-950); font-weight: 700; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+
+    footer { z-index: 20; padding: 8px; border-top: 1px solid rgba(212, 175, 55, 0.3); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .footer-info { display: flex; align-items: center; justify-content: space-between; font-size: 10px; padding: 0 4px; }
+    .footer-left { color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .footer-right { color: var(--gold-400); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    #labels-tray { display: flex; gap: 8px; overflow-x: auto; padding: 4px; align-items: center; min-height: 46px; scrollbar-width: none; }
+    #labels-tray::-webkit-scrollbar { display: none; }
+    .chip { padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: 600; color: #cbd5e1; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 6px; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); background: rgba(35, 41, 52, 0.8); cursor: pointer; }
     .chip-selected { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%) !important; color: #0F1115 !important; font-weight: 700 !important; border-color: #FFF1C5 !important; box-shadow: 0 0 18px rgba(212, 175, 55, 0.7); transform: translateY(-2px); }
 
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
-    .shake-anim { animation: shake 0.4s ease-in-out; }
+    #instruction-toast { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; width: 94%; max-width: 400px; padding: 8px 12px; border-radius: 16px; text-align: center; pointer-events: none; }
+    #toast-text { font-size: 11px; color: #e2e8f0; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; }
 
-    .narrative { font-size: 0.82rem; line-height: 1.4; color: #F3F4F6; font-style: italic; border-left: 3px solid #D4AF37; padding-left: 10px; margin-bottom: 8px; }
-    .story-choice { min-height: 44px; padding: 9px 12px; background: rgba(35, 41, 52, 0.92); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #F3F4F6; font-weight: 600; font-size: 0.82rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 9px; line-height: 1.3; transition: all 0.2s; margin-bottom: 6px; width: 100%; }
+    #stage2-bar { display: none; position: absolute; bottom: 0; left: 0; right: 0; z-index: 30; padding: 12px; flex-direction: column; align-items: center; }
+    #stage2-bar.active { display: flex; }
+    .story-panel { width: 100%; max-width: 576px; padding: 14px; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.4); pointer-events: auto; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); max-height: 62dvh; overflow-y: auto; }
+    .narrative { font-size: 13px; line-height: 1.4; color: #F3F4F6; font-style: italic; border-left: 3px solid #D4AF37; padding-left: 10px; margin-bottom: 8px; }
+    #story-question { font-size: 13px; font-weight: 700; color: var(--gold-300); text-align: center; margin-bottom: 8px; }
+    .story-choice { min-height: 44px; padding: 9px 12px; background: rgba(35, 41, 52, 0.92); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #F3F4F6; font-weight: 600; font-size: 13px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 9px; line-height: 1.3; transition: all 0.2s; margin-bottom: 6px; width: 100%; }
     .story-choice.correct { background: rgba(34,197,94,0.28) !important; border-color: #22c55e !important; color: #4ade80 !important; }
     .story-choice.incorrect { background: rgba(239,68,68,0.28) !important; border-color: #ef4444 !important; color: #f87171 !important; }
     .story-choice:disabled { opacity: 1; }
+    #story-consequence { font-size: 11px; padding: 8px; border-radius: 10px; margin-top: 8px; display: none; }
+    #story-consequence.active { display: block; }
 
-    .class-btn { padding: 13px 8px; border-radius: 14px; background: rgba(35,41,52,0.92); border: 1px solid rgba(255,255,255,0.1); color: #F3F4F6; font-weight: 700; font-size: 0.95rem; transition: all 0.2s; }
-    .class-btn.active { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%); color: #0F1115; border-color: #FFF1C5; box-shadow: 0 0 18px rgba(212,175,55,0.7); }
+    /* Кнопки на карті */
+    #btn-recenter, #btn-reload-map { position: absolute; width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--gold-400); box-shadow: 0 4px 18px rgba(0,0,0,0.5); background: rgba(26,30,38,0.9); border: 1px solid rgba(212,175,55,0.4); z-index: 20; cursor: pointer; }
+    #btn-recenter { bottom: 16px; right: 12px; }
+    #btn-reload-map { bottom: 16px; left: 12px; }
+    #btn-recenter:active, #btn-reload-map:active { transform: scale(0.95); }
+    #btn-reload-map.spinning i { animation: spin 0.8s linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 640px) {
-      header { padding: 6px 10px !important; }
-      header h1 { font-size: 11px !important; }
-      header .w-10 { width: 34px !important; height: 34px !important; font-size: 14px !important; }
-      #stage1-nav { padding: 4px 6px !important; gap: 4px !important; }
-      .cat-tab { padding: 6px 10px !important; font-size: 10px !important; }
-      #stage1-footer { padding: 6px 8px !important; }
-      #labels-tray { min-height: 44px !important; gap: 6px !important; }
-      .chip { padding: 8px 10px !important; font-size: 11px !important; }
-      #instruction-toast { top: 6px !important; padding: 6px 10px !important; }
-      #instruction-toast p { font-size: 10px !important; }
-      #btn-recenter { bottom: 14px !important; right: 10px !important; width: 42px !important; height: 42px !important; }
-      #stage2-bar { padding: 6px !important; }
-      #stage2-bar > div { padding: 10px !important; max-height: 62dvh; overflow-y: auto; }
-      .narrative { font-size: 0.78rem !important; }
-      #story-question { font-size: 0.82rem !important; margin-bottom: 6px !important; }
-      .story-choice { font-size: 0.78rem !important; min-height: 42px !important; padding: 8px 10px !important; }
-      #map-status { bottom: 66px !important; }
-    }
-    @media (max-width: 380px) {
-      .cat-tab { font-size: 9px !important; padding: 5px 8px !important; }
-      .story-choice { font-size: 0.74rem !important; }
-    }
-
-    #map-status {
-      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-      z-index: 15; padding: 5px 12px; border-radius: 9999px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
-      display: flex; align-items: center; gap: 6px;
-      pointer-events: none; transition: opacity 0.3s;
-      background: rgba(15,17,21,0.85); border: 1px solid rgba(255,255,255,0.15);
-      color: #9CA3AF; backdrop-filter: blur(8px);
-      max-width: 92%;
-    }
-    #map-status.loading { border-color: rgba(148,163,184,0.5); color: #cbd5e1; }
+    /* Статус карти */
+    #map-status { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 15; padding: 5px 12px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.4px; display: flex; align-items: center; gap: 6px; pointer-events: none; transition: opacity 0.3s; background: rgba(15,17,21,0.85); border: 1px solid rgba(255,255,255,0.15); color: #9CA3AF; backdrop-filter: blur(8px); max-width: 92%; }
     #map-status.ok { border-color: rgba(34,197,94,0.5); color: #4ade80; }
     #map-status.warn { border-color: rgba(234,179,8,0.5); color: #facc15; }
     #map-status.offline { border-color: rgba(239,68,68,0.5); color: #f87171; }
     #map-status.hidden { opacity: 0; pointer-events: none; }
 
-    #btn-reload-map {
-      position: absolute; bottom: 14px; left: 10px; z-index: 20;
-      width: 42px; height: 42px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      color: #D4AF37; box-shadow: 0 4px 18px rgba(0,0,0,0.5);
-      background: rgba(26,30,38,0.9); border: 1px solid rgba(212,175,55,0.4);
+    /* Модальні вікна */
+    .modal { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; background: rgba(15, 17, 21, 0.85); backdrop-filter: blur(8px); padding: 16px; overflow-y: auto; }
+    .modal.active { display: flex; }
+    .modal-content { width: 100%; max-width: 400px; border-radius: 24px; padding: 20px; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); margin: auto; }
+    
+    .class-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
+    .word-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .class-btn { padding: 12px 8px; border-radius: 14px; background: rgba(35,41,52,0.92); border: 1px solid rgba(255,255,255,0.1); color: #F3F4F6; font-weight: 700; font-size: 14px; transition: all 0.2s; cursor: pointer; }
+    .class-btn.active { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%); color: #0F1115; border-color: #FFF1C5; box-shadow: 0 0 18px rgba(212,175,55,0.7); }
+
+    .btn-start { width: 100%; padding: 14px; border-radius: 16px; font-weight: 800; font-size: 14px; letter-spacing: 0.5px; margin-top: 16px; cursor: pointer; border: none; }
+    .btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .score-card { padding: 12px; border-radius: 16px; text-align: center; }
+    .score-card-label { font-size: 10px; color: #94a3b8; display: block; margin-bottom: 4px; }
+    .score-card-val { font-size: 18px; font-weight: 800; color: var(--gold-300); }
+
+    .journal-box { padding: 12px; border-radius: 16px; text-align: left; font-size: 12px; margin-bottom: 16px; }
+    .journal-title { font-weight: 700; color: var(--gold-300); margin-bottom: 4px; }
+
+    /* Адаптація для телефонів */
+    @media (max-width: 640px) {
+      header { padding: 6px 10px !important; }
+      .header-title { font-size: 11px !important; }
+      .logo-box { width: 34px !important; height: 34px !important; font-size: 14px !important; }
+      .cat-tab { padding: 6px 10px !important; font-size: 10px !important; }
+      footer { padding: 6px 8px !important; }
+      #labels-tray { min-height: 44px !important; gap: 6px !important; }
+      .chip { padding: 8px 10px !important; font-size: 11px !important; }
+      #instruction-toast { top: 6px !important; padding: 6px 10px !important; }
+      #toast-text { font-size: 10px !important; }
+      #btn-recenter { bottom: 14px !important; right: 10px !important; width: 42px !important; height: 42px !important; }
+      #btn-reload-map { bottom: 14px !important; left: 10px !important; width: 42px !important; height: 42px !important; }
+      #map-status { bottom: 66px !important; }
+      #stage2-bar { padding: 6px !important; }
+      .story-panel { padding: 10px !important; max-height: 62dvh; }
+      .narrative { font-size: 12px !important; }
+      #story-question { font-size: 12px !important; }
+      .story-choice { font-size: 12px !important; min-height: 42px !important; padding: 8px 10px !important; }
     }
-    #btn-reload-map:active { transform: scale(0.95); }
-    #btn-reload-map.spinning i { animation: spin 0.8s linear; }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="antialiased select-none">
+<body>
 
-  <header class="glass-panel-asphalt z-20 px-3 py-2 flex items-center justify-between gap-2 border-b border-gold-500/30 shrink-0">
-    <div class="flex items-center space-x-2">
-      <div class="w-10 h-10 rounded-2xl gold-button-bg flex items-center justify-center font-black text-lg shrink-0">
-        <i class="fa-solid fa-earth-africa"></i>
-      </div>
-      <div class="min-w-0">
-        <h1 class="text-xs sm:text-base font-extrabold tracking-wide font-display text-slate-100 flex items-center gap-2 whitespace-nowrap">
-          АФРИКА <span class="bg-gold-500/20 text-gold-300 text-[9px] sm:text-xs px-1.5 py-0.5 rounded-full border border-gold-500/40">7 кл.</span>
-        </h1>
-        <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate max-w-[150px] sm:max-w-xs">
-          <span class="text-gold-400 font-semibold" id="class-label">—</span> · <span class="text-gold-400 font-semibold" id="word-label">—</span>
-        </p>
+  <!-- HEADER -->
+  <header class="glass-panel-asphalt">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="logo-box gold-button-bg"><i class="fa-solid fa-earth-africa"></i></div>
+      <div style="min-width: 0;">
+        <h1 class="header-title">АФРИКА <span class="header-badge">7 кл.</span></h1>
+        <p class="header-sub"><span class="text-gold-400 font-semibold" id="class-label">—</span> · <span class="text-gold-400 font-semibold" id="word-label">—</span></p>
       </div>
     </div>
-
-    <div class="flex items-center space-x-2 shrink-0">
-      <button id="btn-finish-early" class="hidden glass-card-asphalt px-2.5 py-1.5 rounded-2xl border border-rose-500/40 text-rose-400 transition-all text-[10px] font-bold flex items-center gap-1" onclick="confirmEarlyFinish()">
+    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+      <button id="btn-finish-early" class="btn-finish glass-card-asphalt" style="display: none;" onclick="confirmEarlyFinish()">
         <i class="fa-solid fa-flag-checkered"></i> <span class="hidden sm:inline">Завершити</span>
       </button>
-
-      <div class="glass-card-asphalt px-2.5 py-1.5 rounded-2xl border border-gold-500/30 flex items-center space-x-2">
-        <i class="fa-solid fa-award text-gold-400 text-xs"></i>
-        <div class="text-right">
-          <div class="text-[8px] text-slate-400 font-semibold uppercase tracking-wider">Оцінка</div>
-          <div class="text-[11px] sm:text-sm font-extrabold text-gold-300 leading-none whitespace-nowrap">
-            <span id="current-score">0.0</span> <span class="text-[9px] text-slate-400 font-normal">/ 12</span>
-          </div>
+      <div class="score-box glass-card-asphalt">
+        <i class="fa-solid fa-award text-gold-400" style="font-size: 12px;"></i>
+        <div style="text-align: right;">
+          <div class="score-label">Оцінка</div>
+          <div class="score-val"><span id="current-score">0.0</span> <span class="score-total">/ 12</span></div>
         </div>
       </div>
     </div>
   </header>
 
-  <nav id="stage1-nav" class="glass-panel-asphalt z-10 px-2 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar border-b border-white/5 shrink-0">
-    <button data-cat="ALL" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md whitespace-nowrap">Всі</button>
-    <button data-cat="EXTREME" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">📍 Точки</button>
-    <button data-cat="WATER" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">🌊 Води</button>
-    <button data-cat="RELIEF" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">⛰️ Рельєф</button>
-    <button data-cat="DESERT" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">🏜️ Пустелі</button>
-    <button data-cat="ISLAND" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">🏝️ Острови й п-ови</button>
+  <!-- NAV -->
+  <nav class="glass-panel-asphalt" id="stage1-nav">
+    <button data-cat="ALL" class="cat-tab active">Всі</button>
+    <button data-cat="EXTREME" class="cat-tab">📍 Точки</button>
+    <button data-cat="WATER" class="cat-tab">🌊 Води</button>
+    <button data-cat="RELIEF" class="cat-tab">⛰️ Рельєф</button>
+    <button data-cat="DESERT" class="cat-tab">🏜️ Пустелі</button>
   </nav>
 
+  <!-- MAIN MAP AREA -->
   <main>
     <div id="map"></div>
 
-    <div id="instruction-toast" class="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[94%] sm:w-auto glass-panel-asphalt px-3 py-2 rounded-2xl border border-gold-500/30 text-center shadow-2xl transition-all duration-300 pointer-events-none">
-      <p class="text-xs text-slate-200 font-medium flex items-center justify-center gap-2" id="toast-text">
-        <i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i>
-        <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>
-      </p>
+    <div id="instruction-toast" class="glass-panel-asphalt">
+      <p id="toast-text"><i class="fa-solid fa-hand-pointer text-gold-400" style="animation: bounce 1s infinite;"></i> <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span></p>
     </div>
 
-    <div id="stage2-bar" class="hidden absolute bottom-0 left-0 right-0 z-30 p-3 pointer-events-none flex flex-col items-center">
-      <div class="w-full max-w-xl glass-panel-asphalt p-3.5 rounded-2xl border border-gold-500/40 pointer-events-auto shadow-2xl">
+    <div id="stage2-bar">
+      <div class="story-panel glass-panel-asphalt">
         <div id="story-narrative" class="narrative"></div>
-        <div id="story-question" class="text-sm font-bold text-gold-300 text-center mb-2"></div>
+        <div id="story-question"></div>
         <div id="story-choices"></div>
-        <div id="story-consequence" class="text-xs p-2 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-200 mt-2 hidden"></div>
+        <div id="story-consequence"></div>
       </div>
     </div>
 
     <div id="map-status" class="hidden"></div>
-
-    <button id="btn-reload-map" title="Оновити карту" aria-label="Оновити карту">
-      <i class="fa-solid fa-rotate text-base"></i>
-    </button>
-
-    <button id="btn-recenter" class="absolute bottom-4 right-3 z-10 w-11 h-11 rounded-2xl glass-panel-asphalt border border-gold-500/30 flex items-center justify-center text-gold-400 shadow-xl hover:bg-asphalt-800 active:scale-95 transition-all" aria-label="Центрувати карту">
-      <i class="fa-solid fa-crosshairs text-base"></i>
-    </button>
+    <button id="btn-reload-map" title="Оновити карту"><i class="fa-solid fa-rotate"></i></button>
+    <button id="btn-recenter"><i class="fa-solid fa-crosshairs"></i></button>
   </main>
 
-  <footer id="stage1-footer" class="glass-panel-asphalt z-20 px-2 py-2 border-t border-gold-500/30 flex flex-col gap-1.5 shrink-0">
-    <div class="flex items-center justify-between text-xs px-1">
-      <span class="text-slate-400 font-semibold flex items-center gap-1.5 text-[10px] uppercase tracking-wider">
-        <i class="fa-solid fa-layer-group text-gold-400"></i> Залишилось: <span id="remaining-count" class="text-gold-300 font-bold">28</span> / 28
-      </span>
-      <span class="text-[10px] text-gold-400 font-medium truncate" id="hint-action">Обери назву зі списку</span>
+  <!-- FOOTER -->
+  <footer class="glass-panel-asphalt" id="stage1-footer">
+    <div class="footer-info">
+      <span class="footer-left"><i class="fa-solid fa-layer-group text-gold-400"></i> Залишилось: <span id="remaining-count" class="text-gold-300" style="font-weight: 700;">28</span> / 28</span>
+      <span class="footer-right" id="hint-action">Обери назву зі списку</span>
     </div>
-    <div id="labels-tray" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1 touch-pan-x items-center min-h-[46px]"></div>
+    <div id="labels-tray"></div>
   </footer>
 
-  <!-- СТАРТОВИЙ ЕКРАН -->
-  <div id="modal-start" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/85 backdrop-blur-md px-4 overflow-y-auto">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-5 border border-gold-500/40 shadow-2xl space-y-4 my-4">
-      <div class="text-center space-y-1">
-        <div class="inline-flex w-14 h-14 rounded-3xl gold-button-bg items-center justify-center text-asphalt-950 text-2xl shadow-lg shadow-gold-500/30">
-          <i class="fa-solid fa-compass"></i>
-        </div>
-        <h2 class="text-xl font-black font-display text-slate-100">Африка: Подорож</h2>
-        <p class="text-[11px] text-slate-300 leading-relaxed">Етап 1: Карта. Етап 2: Історія.</p>
+  <!-- MODAL START -->
+  <div id="modal-start" class="modal active">
+    <div class="modal-content glass-panel-asphalt">
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div style="display: inline-flex; width: 56px; height: 56px; border-radius: 16px; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 8px;" class="gold-button-bg"><i class="fa-solid fa-compass"></i></div>
+        <h2 style="font-size: 20px; font-weight: 900; margin: 0;">Африка: Подорож</h2>
+        <p style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">Етап 1: Карта. Етап 2: Історія.</p>
       </div>
-
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold text-gold-300 uppercase tracking-wider">Клас:</label>
-        <div id="class-grid" class="grid grid-cols-5 gap-1.5">
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--gold-300); text-transform: uppercase; margin-bottom: 6px;">Клас:</label>
+        <div id="class-grid" class="class-grid">
           <button class="class-btn" data-class="7А">7А</button>
           <button class="class-btn" data-class="7Б">7Б</button>
           <button class="class-btn" data-class="7В">7В</button>
@@ -241,10 +249,9 @@
           <button class="class-btn" data-class="7Д">7Д</button>
         </div>
       </div>
-
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold text-gold-300 uppercase tracking-wider">Слово-маршрут:</label>
-        <div id="word-grid" class="grid grid-cols-2 gap-1.5">
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--gold-300); text-transform: uppercase; margin-bottom: 6px;">Слово-маршрут:</label>
+        <div id="word-grid" class="word-grid">
           <button class="class-btn" data-word="forest">🌿 Ліс</button>
           <button class="class-btn" data-word="sahara">🏜️ Сахара</button>
           <button class="class-btn" data-word="savanna">🦒 Савана</button>
@@ -253,78 +260,63 @@
           <button class="class-btn" data-word="madagascar">🌴 Мадагаскар</button>
         </div>
       </div>
-
-      <div id="start-map-status" class="text-[10px] text-center text-slate-400 italic">Перевірка карти…</div>
-
-      <button id="btn-start-game" disabled class="w-full py-3.5 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">РОЗПОЧАТИ</button>
+      <div id="start-map-status" style="font-size: 10px; text-align: center; color: #94a3b8; font-style: italic; margin-top: 8px;">Перевірка карти…</div>
+      <button id="btn-start-game" disabled class="btn-start gold-button-bg">РОЗПОЧАТИ</button>
     </div>
   </div>
 
-  <div id="modal-early-finish" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden">
-    <div class="glass-panel-asphalt w-full max-w-sm rounded-3xl p-6 border border-rose-500/40 shadow-2xl text-center space-y-4">
-      <div class="inline-flex w-16 h-16 rounded-full bg-rose-500/20 border border-rose-500/40 items-center justify-center text-rose-400 text-3xl mb-1">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <h2 class="text-lg font-black font-display text-slate-100">Завершити достроково?</h2>
-      <p class="text-xs text-slate-300" id="early-finish-text">Ти не знайшов всі об'єкти. За незнайдені буде нараховано 0 балів.</p>
-      <div class="flex gap-2 mt-4">
-        <button onclick="document.getElementById('modal-early-finish').classList.add('hidden')" class="flex-1 py-3 rounded-xl glass-card-asphalt text-slate-300 font-bold text-xs hover:bg-asphalt-800">Продовжити</button>
-        <button onclick="executeEarlyFinish()" class="flex-1 py-3 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 shadow-lg">Завершити</button>
+  <!-- MODAL EARLY FINISH -->
+  <div id="modal-early-finish" class="modal">
+    <div class="modal-content glass-panel-asphalt" style="text-align: center; border-color: rgba(239, 68, 68, 0.4);">
+      <div style="display: inline-flex; width: 64px; height: 64px; border-radius: 50%; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); align-items: center; justify-content: center; color: var(--rose-400); font-size: 30px; margin-bottom: 12px;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h2 style="font-size: 18px; font-weight: 900; margin: 0 0 8px;">Завершити достроково?</h2>
+      <p id="early-finish-text" style="font-size: 12px; color: #cbd5e1; margin: 0 0 16px;">Ти не знайшов всі об'єкти. За незнайдені буде нараховано 0 балів.</p>
+      <div style="display: flex; gap: 8px;">
+        <button onclick="document.getElementById('modal-early-finish').classList.remove('active')" class="glass-card-asphalt" style="flex: 1; padding: 12px; border-radius: 12px; color: #cbd5e1; font-weight: 700; font-size: 12px; cursor: pointer; border: none;">Продовжити</button>
+        <button onclick="executeEarlyFinish()" style="flex: 1; padding: 12px; border-radius: 12px; background: #dc2626; color: white; font-weight: 700; font-size: 12px; cursor: pointer; border: none;">Завершити</button>
       </div>
     </div>
   </div>
 
-  <div id="modal-inter" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/40 shadow-2xl text-center space-y-4">
-      <div class="inline-flex w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/40 items-center justify-center text-emerald-400 text-3xl mb-1">
-        <i class="fa-solid fa-map-location-dot"></i>
-      </div>
-      <h2 class="text-xl font-black font-display text-slate-100">Етап 1 завершено!</h2>
-      <p class="text-sm text-slate-300">Оцінка за карту: <strong id="inter-score" class="text-gold-300 text-lg">0.0</strong> / 12.0</p>
-      <p class="text-xs text-slate-400 italic">Далі — історія за обраним словом.</p>
-      <button id="btn-goto-stage2" class="w-full py-4 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl mt-2">У ПОДОРОЖ →</button>
+  <!-- MODAL INTER -->
+  <div id="modal-inter" class="modal">
+    <div class="modal-content glass-panel-asphalt" style="text-align: center;">
+      <div style="display: inline-flex; width: 64px; height: 64px; border-radius: 16px; background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.4); align-items: center; justify-content: center; color: var(--emerald-400); font-size: 30px; margin-bottom: 12px;"><i class="fa-solid fa-map-location-dot"></i></div>
+      <h2 style="font-size: 20px; font-weight: 900; margin: 0 0 8px;">Етап 1 завершено!</h2>
+      <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 8px;">Оцінка за карту: <strong id="inter-score" class="text-gold-300" style="font-size: 18px;">0.0</strong> / 12.0</p>
+      <p style="font-size: 12px; color: #94a3b8; font-style: italic; margin-bottom: 16px;">Далі — історія за обраним словом.</p>
+      <button id="btn-goto-stage2" class="btn-start gold-button-bg" style="margin-top: 0;">У ПОДОРОЖ →</button>
     </div>
   </div>
 
-  <div id="modal-victory" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden overflow-y-auto">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/50 shadow-2xl text-center space-y-4 my-4">
-      <div class="inline-flex w-16 h-16 rounded-3xl gold-button-bg items-center justify-center text-asphalt-950 text-3xl shadow-xl mb-1">
-        <i class="fa-solid fa-trophy"></i>
+  <!-- MODAL VICTORY -->
+  <div id="modal-victory" class="modal">
+    <div class="modal-content glass-panel-asphalt" style="text-align: center;">
+      <div style="display: inline-flex; width: 64px; height: 64px; border-radius: 16px; align-items: center; justify-content: center; color: var(--asphalt-950); font-size: 30px; margin-bottom: 12px;" class="gold-button-bg"><i class="fa-solid fa-trophy"></i></div>
+      <h2 style="font-size: 24px; font-weight: 900; margin: 0 0 16px;">Подорож завершена!</h2>
+      <div class="glass-card-asphalt" style="border-radius: 16px; padding: 16px; border: 1px solid rgba(212, 175, 55, 0.4); background: rgba(21, 24, 30, 0.8); margin-bottom: 16px;">
+        <span style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700;">Загальна оцінка</span>
+        <div id="final-total-score" class="gold-gradient-text" style="font-size: 48px; font-weight: 900; line-height: 1.2;">0.0</div>
+        <div id="final-context" style="font-size: 12px; color: #94a3b8;"></div>
       </div>
-      <h2 class="text-2xl font-black font-display text-slate-100">Подорож завершена!</h2>
-
-      <div class="glass-card-asphalt rounded-2xl p-4 border border-gold-500/40 bg-asphalt-900/80 space-y-1">
-        <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Загальна оцінка</span>
-        <div class="text-5xl font-black gold-gradient-text py-1" id="final-total-score">0.0</div>
-        <div class="text-xs text-slate-400" id="final-context"></div>
+      <div class="score-grid">
+        <div class="score-card glass-card-asphalt"><span class="score-card-label">Етап 1 (Карта)</span><span class="score-card-val" id="final-s1">0.0</span></div>
+        <div class="score-card glass-card-asphalt"><span class="score-card-label">Етап 2 (Історія)</span><span class="score-card-val" id="final-s2">0.0</span></div>
       </div>
-
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5">
-          <span class="text-slate-400 block text-[10px]">Етап 1 (Карта)</span>
-          <span class="font-extrabold text-gold-300 text-base" id="final-s1">0.0</span>
-        </div>
-        <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5">
-          <span class="text-slate-400 block text-[10px]">Етап 2 (Історія)</span>
-          <span class="font-extrabold text-gold-300 text-base" id="final-s2">0.0</span>
-        </div>
+      <div class="journal-box glass-card-asphalt">
+        <div class="journal-title">Дані для журналу:</div>
+        <div>Клас: <span id="journal-class" style="font-weight: 600;">—</span></div>
+        <div>Маршрут: <span id="journal-word" style="font-weight: 600;">—</span></div>
+        <div>Оцінка: <span id="journal-score" class="text-gold-300" style="font-weight: 600;">—</span></div>
       </div>
-
-      <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5 text-left text-xs text-slate-300 space-y-0.5">
-        <div class="font-bold text-gold-300 mb-1">Дані для журналу:</div>
-        <div>Клас: <span id="journal-class" class="font-semibold">—</span></div>
-        <div>Маршрут: <span id="journal-word" class="font-semibold">—</span></div>
-        <div>Оцінка: <span id="journal-score" class="font-semibold text-gold-300">—</span></div>
-      </div>
-
-      <button id="btn-copy-result" class="w-full py-3 rounded-2xl glass-card-asphalt border border-white/10 text-slate-200 font-bold text-xs transition-all">
-        <i class="fa-regular fa-copy"></i> <span id="copy-label">Скопіювати результат</span>
-      </button>
-      <button onclick="location.reload()" class="w-full py-3.5 rounded-2xl glass-card-asphalt border border-gold-500/40 hover:bg-asphalt-800 text-gold-300 font-bold text-xs transition-all">Завершити</button>
+      <button onclick="location.reload()" class="glass-card-asphalt" style="width: 100%; padding: 14px; border-radius: 16px; color: var(--gold-300); font-weight: 700; font-size: 12px; cursor: pointer; border: 1px solid rgba(212, 175, 55, 0.4);">Завершити</button>
     </div>
   </div>
 
-  <script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
     const GEOGRAPHY_ITEMS = [
       { id: '1', name: 'мис Рас-Енгела', lat: 37.348, lng: 9.845, category: 'EXTREME', desc: 'Північна крайня точка' },
       { id: '2', name: 'мис Агульяс (Голковий)', lat: -34.833, lng: 20.000, category: 'EXTREME', desc: 'Південна крайня точка' },
@@ -351,9 +343,9 @@
       { id: '23', name: 'пустеля Сахара', lat: 23.000, lng: 12.000, category: 'DESERT', desc: 'Найбільша тропічна пустеля' },
       { id: '24', name: 'пустеля Наміб', lat: -24.500, lng: 15.000, category: 'DESERT', desc: 'Прибережна пустеля' },
       { id: '25', name: 'пустеля Калахарі', lat: -23.000, lng: 22.500, category: 'DESERT', desc: 'Напівпустеля на півдні' },
-      { id: '26', name: 'о. Мадагаскар', lat: -18.766, lng: 46.869, category: 'ISLAND', desc: 'Найбільший острів біля Африки' },
-      { id: '27', name: 'Канарські о-ви', lat: 28.291, lng: -16.629, category: 'ISLAND', desc: 'Острови в Атлантиці' },
-      { id: '28', name: 'п-ів Сомалі', lat: 8.500, lng: 48.000, category: 'ISLAND', desc: 'Африканський ріг' }
+      { id: '26', name: 'о. Мадагаскар', lat: -18.766, lng: 46.869, category: 'DESERT', desc: 'Найбільший острів' },
+      { id: '27', name: 'Канарські о-ви', lat: 28.291, lng: -16.629, category: 'DESERT', desc: 'Острови в Атлантиці' },
+      { id: '28', name: 'п-ів Сомалі', lat: 8.500, lng: 48.000, category: 'DESERT', desc: 'Африканський ріг' }
     ];
 
     const ROUTES = [
@@ -366,18 +358,18 @@
             o:[ {t:"Конго", ok:true, r:"Так! Конго — найповноводніша річка Африки. Ви переправляєтесь на інший берег."}, {t:"Ніл", ok:false, r:"Ніл тече на північ, до Середземного моря. А ця — на захід. Але ви все одно переправляєтесь."}, {t:"Нігер", ok:false, r:"Нігер — на заході. Ця річка інша. Провідник показує правильний шлях."}, {t:"Замбезі", ok:false, r:"Замбезі — на півдні, там водоспад Вікторія. А ми в басейні Конго."} ]},
           { c:[-2.5,22.0], n:"На березі — маленьке поселення. Люди невисокого зросту, живуть у лісі тисячі років. Нкомо каже: «Це найнижчі люди планети».", q:"Хто це?",
             o:[ {t:"Пігмеї", ok:true, r:"Так, пігмеї. Їхній середній зріст — 140–145 см. Вони знають ліс краще за всіх."}, {t:"Масаї", ok:false, r:"Масаї — високі скотарі саван, не лісові жителі. Але ви знайомитесь і з пігмеями."}, {t:"Бушмени", ok:false, r:"Бушмени живуть у Калахарі, на півдні. Тут — інший народ."} ]},
-          { c:[0.0,25.0], n:"Ніч у таборі. Навколо кричать птахи, чути шурхіт. Нкомо шепоче: «Тут живуть тварини, яких не зустрінеш у савані чи пустелі».", q:"Яка з цих тварин є мешканцем екваторіальних лісів?",
-            o:[ {t:"Горила", ok:true, r:"Так. Гірські та рівнинні горили живуть у вологих лісах Центральної Африки."}, {t:"Жираф", ok:false, r:"Жирафи живуть у савані, де є високі акації. Нкомо сміється."}, {t:"Зебра", ok:false, r:"Зебри — мешканці відкритих саван, не густого лісу."}, {t:"Верблюд", ok:false, r:"Верблюд — тварина пустель, у вологому лісі йому не місце."} ]},
+          { c:[0.0,25.0], n:"Ніч у таборі. Навколо кричать птахи, чути шурхіт. Нкомо попереджає: «Не виходь далеко — тут водяться тварини, яких краще не зустрічати».", q:"Яка тварина найнебезпечніша в гілеї?",
+            o:[ {t:"Лісовий слон", ok:false, r:"Слони небезпечні, але зазвичай уникають людей. Нкомо каже: «Бійся інших»."}, {t:"Горила", ok:true, r:"Горили можуть бути агресивними, якщо захищають потомство. Краще триматися далі."}, {t:"Жираф", ok:false, r:"Жирафи живуть у савані, не в лісі. Нкомо сміється."}, {t:"Зебра", ok:false, r:"Зебри — мирні травоїдні саван. Не вони тут небезпечні."} ]},
           { c:[-1.0,22.0], n:"Ранок. Туман між деревами. Все мокре — і листя, і земля, і твій одяг. Нкомо каже: «Тут волого майже завжди».", q:"Чому в екваторіальному лісі так волого?",
             o:[ {t:"Тому що тут випадає понад 2000 мм опадів на рік, а спека +25…+28°C постійна", ok:true, r:"Саме так. Екваторіальний клімат — рівномірно вологий і спекотний цілий рік."}, {t:"Тому що тут часто бувають повені", ok:false, r:"Повені бувають, але вологість — від клімату. Провідник пояснює."}, {t:"Тому що ліс близько до моря", ok:false, r:"Море впливає, але головне — клімат екваторіального поясу."} ]},
           { c:[0.5,23.5], n:"Ви бачите, як місцеві валять величезне дерево. Нкомо хмуриться: «Ліс зменшується щороку».", q:"Яка головна екологічна проблема екваторіальних лісів?",
             o:[ {t:"Вирубка під пасовища та заготівля цінної деревини", ok:true, r:"Так. Щороку Африка втрачає тисячі гектарів гілеї. Це загрожує біорізноманіттю."}, {t:"Посухи", ok:false, r:"Посухи — проблема саван і Сахелю, не гілеї."}, {t:"Лісові пожежі", ok:false, r:"Пожежі бувають, але головна причина — людина."} ]},
-          { c:[-2.0,26.0], n:"Ви виходите на галявину. Нкомо показує на ліани, що обплітають стовбури велетенських дерев: «Дивись, який ярусний ліс!»", q:"Які рослини ростуть у вологих екваторіальних лісах?",
-            o:[ {t:"Вічнозелені дерева (червоне й чорне дерево), пальми, ліани", ok:true, r:"Так. Гілея — вічнозелений ліс із кількома ярусами рослин."}, {t:"Баобаби й парасолькоподібні акації", ok:false, r:"Це рослини саван, а не густих вологих лісів."}, {t:"Кактуси й верблюжа колючка", ok:false, r:"Це рослини пустель, де майже не буває опадів."} ]},
+          { c:[-2.0,26.0], n:"Ви виходите на галявину. Нкомо показує дерево з дивовижним листям: «Воно дає тінь і ліки».", q:"Яка рослина є символом африканських саван, але зустрічається й на узліссі?",
+            o:[ {t:"Баобаб", ok:true, r:"Баобаб запасає воду в товстому стовбурі й може жити тисячі років."}, {t:"Секвоя", ok:false, r:"Секвоя — в Північній Америці, не в Африці."}, {t:"Евкаліпт", ok:false, r:"Евкаліпт — з Австралії. Хоча його садять і в Африці."} ]},
           { c:[-3.5,24.0], n:"Нкомо веде тебе далі на схід. Ліс стає рідшим, з'являються трави. «Ми на межі», — каже він.", q:"Яка природна зона йде після вологих екваторіальних лісів?",
             o:[ {t:"Савана і рідколісся", ok:true, r:"Так. Савана — перехідна зона між лісом і пустелею."}, {t:"Пустеля", ok:false, r:"Пустеля далі, за саваною. Спочатку — савана."}, {t:"Степ", ok:false, r:"Степ — в інших широтах. В Африці — савана."} ]},
-          { c:[-1.0,33.0], n:"На межі лісу і савани ти бачиш велетенське озеро. Нкомо каже: «Це найбільше озеро Африки, з нього витікає Ніл».", q:"Що це за озеро?",
-            o:[ {t:"Вікторія", ok:true, r:"Так, озеро Вікторія — друге за площею прісноводне озеро світу. З нього витікає Ніл."}, {t:"Танганьїка", ok:false, r:"Танганьїка — найглибше, але Ніл бере початок не з нього."}, {t:"Чад", ok:false, r:"Чад — на заході, мілководне й безстічне."} ]},
+          { c:[-4.0,29.0], n:"На межі лісу і савани ти бачиш озеро. Нкомо каже: «Це одне з найбільших озер Африки, тут починається Ніл».", q:"Що це за озеро?",
+            o:[ {t:"Вікторія", ok:true, r:"Так, озеро Вікторія — друге за площею прісноводне озеро світу. З нього витікає Ніл."}, {t:"Танганьїка", ok:false, r:"Танганьїка — найглибше, але не тут. Вона в розломі на півдні."}, {t:"Чад", ok:false, r:"Чад — на заході, мілководне й безстічне."} ]},
           { c:[-1.0,30.0], n:"Ти виходиш до савани. Сонце пече, вітер жене хвилі трави. Нкомо питає: «Що ти розповіси про подорож?»", q:"Яке твердження про екваторіальний ліс правильне?",
             o:[ {t:"Тут цілий рік спекотно й волого, ростуть вічнозелені дерева, живуть пігмеї", ok:true, r:"Так! Це підсумок твоєї подорожі. Ти добре засвоїв матеріал."}, {t:"Тут сухо й спекотно, ростуть кактуси", ok:false, r:"Це опис пустелі. Ти переплутав зони."}, {t:"Тут холодно й сухо, живуть пінгвіни", ok:false, r:"Це зовсім не про Африку."} ]}
         ]
@@ -387,7 +379,7 @@
         scenes: [
           { c:[30.04,31.23], n:"Ти в Каїрі. Спека +38°C, повітря сухе. Гід Ахмед каже: «Сьогодні вирушаємо на південь, у найбільшу пустелю світу».", q:"Куди ви прямуєте?",
             o:[ {t:"У Сахару", ok:true, r:"Так, Сахара — найбільша гаряча пустеля світу. Ви вирушаєте на південь."}, {t:"У тропічні ліси", ok:false, r:"Ліси — на півдні материка. Ахмед сміється: «Спочатку — пустеля»."}, {t:"У гори Атлас", ok:false, r:"Атлас — на заході. Але ми їдемо на південь."} ]},
-          { c:[25.0,15.0], n:"Навколо — пісок до горизонту. Вдень +45°C, вночі +5°C. Ахмед каже: «Тут добова амплітуда температур дуже велика».", q:"Чому в Сахарі така велика добова амплітуда температур?",
+          { c:[25.0,15.0], n:"Навколо — пісок до горизонту. Вдень +45°C, вночі +5°C. Ахмед каже: «Тут річна амплітуда температур дуже велика».", q:"Чому в Сахарі така велика добова амплітуда температур?",
             o:[ {t:"Тому що вдень пісок швидко нагрівається, а вночі швидко віддає тепло", ok:true, r:"Так. Сухе повітря і пісок не утримують тепло."}, {t:"Тому що тут високі гори", ok:false, r:"Гори є, але причина — в сухості й властивостях піску."}, {t:"Тому що тут близько екватор", ok:false, r:"Екватор далеко. Причина — пустельний клімат."} ]},
           { c:[23.0,10.0], n:"Ви знаходите оазу. Пальми, вода, люди. Ахмед каже: «Тут живуть бербери й туареги».", q:"Яка раса переважає в Північній Африці?",
             o:[ {t:"Європеоїдна (південна гілка)", ok:true, r:"Так. Араби й бербери належать до південної гілки європеоїдної раси."}, {t:"Екваторіальна (негроїдна)", ok:false, r:"Негроїдна — південніше, у Субсахарській Африці."}, {t:"Монголоїдна", ok:false, r:"Монголоїдна — в Азії."} ]},
@@ -399,7 +391,7 @@
             o:[ {t:"Верблюд (дромедар)", ok:true, r:"Так. Верблюд запасає воду й переносить спеку."}, {t:"Слон", ok:false, r:"Слони живуть у савані й лісі, не в пустелі."}, {t:"Жираф", ok:false, r:"Жирафи — мешканці саван."} ]},
           { c:[26.0,32.8], n:"Ви повертаєтесь до Нілу. Ахмед каже: «Ця річка — годувальниця Єгипту. Вона тече через пустелю».", q:"Яка річка перетинає Сахару й тече до Середземного моря?",
             o:[ {t:"Ніл", ok:true, r:"Так. Ніл — найдовша річка Африки, годувальниця Єгипту й Судану."}, {t:"Конго", ok:false, r:"Конго тече на захід, до Атлантики."}, {t:"Нігер", ok:false, r:"Нігер — на заході."} ]},
-          { c:[28.0,10.0], n:"Нафтові вишки серед піску. Ахмед каже: «Сахара багата не лише піском».", q:"Які корисні копалини видобувають у Сахарі?",
+          { c:[22.0,10.0], n:"Нафтові вишки серед піску. Ахмед каже: «Сахара багата не лише піском».", q:"Які корисні копалини видобувають у Сахарі?",
             o:[ {t:"Нафта й природний газ", ok:true, r:"Так. Алжир і Лівія — великі експортери нафти й газу."}, {t:"Залізна руда", ok:false, r:"Залізна руда є, але головне — нафта й газ."}, {t:"Алмази", ok:false, r:"Алмази — переважно на півдні."} ]},
           { c:[30.0,31.0], n:"Ти повертаєшся до Каїра. Ахмед питає: «Що ти запам'ятав про Сахару?»", q:"Яке твердження про Сахару правильне?",
             o:[ {t:"Це найбільша гаряча пустеля світу, з великими добовими амплітудами температур", ok:true, r:"Так! Ти добре засвоїв матеріал."}, {t:"Це вологий тропічний ліс", ok:false, r:"Ні, це пустеля."}, {t:"Тут цілий рік прохолодно", ok:false, r:"Навпаки — дуже спекотно."} ]}
@@ -414,13 +406,13 @@
             o:[ {t:"Баобаб", ok:true, r:"Так! Баобаб — символ саван. Його стовбур запасає воду."}, {t:"Акація", ok:false, r:"Акації теж є, але вони з парасолькоподібною кроною."}, {t:"Секвоя", ok:false, r:"Секвоя — в Північній Америці."} ]},
           { c:[-2.0,35.5], n:"Стадо зебр і антилоп гну переходить рівнину. Джозеф каже: «Вони йдуть за дощами».", q:"Чому тварини савани мігрують?",
             o:[ {t:"У пошуках води й їжі через чергування сухого й вологого сезонів", ok:true, r:"Так. Савана має чіткий сухий і вологий сезони."}, {t:"Тому що тут холодно", ok:false, r:"У савані спекотно, не холодно."}, {t:"Тому що їх лякають хижаки", ok:false, r:"Головна причина — вода й їжа."} ]},
-          { c:[-3.067,37.355], n:"Джозеф показує на високу гору вдалині: «Це найвища вершина Африки, 5895 м».", q:"Що це за вершина?",
+          { c:[-3.0,35.0], n:"Джозеф показує на високу гору вдалині: «Це найвища вершина Африки, 5895 м».", q:"Що це за вершина?",
             o:[ {t:"Кіліманджаро", ok:true, r:"Так, вулкан Кіліманджаро — найвища точка Африки."}, {t:"Кенія", ok:false, r:"Гора Кенія — друга за висотою."}, {t:"Елгон", ok:false, r:"Елгон — вулкан на кордоні Уганди й Кенії, але не найвищий."} ]},
           { c:[-2.0,34.0], n:"На дереві сидить лев. Джозеф шепоче: «Не рухайся. Це хижак савани».", q:"Які тварини є хижаками савани?",
             o:[ {t:"Леви, гепарди, леопарди", ok:true, r:"Так. Великі котячі — головні хижаки саван."}, {t:"Зебри й антилопи", ok:false, r:"Це травоїдні, не хижаки."}, {t:"Слони й жирафи", ok:false, r:"Це травоїдні."} ]},
           { c:[-2.5,34.5], n:"Ти бачиш, як браконьєри вдалині. Джозеф хмуриться: «Це велика проблема».", q:"Які тварини найбільше страждають від браконьєрства?",
             o:[ {t:"Слони (через бивні) та носороги (через ріг)", ok:true, r:"Так. Браконьєрство ставить їх на межу зникнення."}, {t:"Зебри", ok:false, r:"Зебри не є головною метою браконьєрів."}, {t:"Страуси", ok:false, r:"Страуси теж, але не найбільше."} ]},
-          { c:[-1.5,33.5], n:"Джозеф веде тебе до озера Вікторія. «Це найбільше озеро Африки», — каже він.", q:"Яке озеро є найбільшим в Африці?",
+          { c:[-1.5,34.0], n:"Джозеф веде тебе до озера Вікторія. «Це найбільше озеро Африки», — каже він.", q:"Яке озеро є найбільшим в Африці?",
             o:[ {t:"Вікторія", ok:true, r:"Так. Вікторія — друге за площею прісноводне озеро світу."}, {t:"Танганьїка", ok:false, r:"Танганьїка — найглибше, але не найбільше."}, {t:"Чад", ok:false, r:"Чад — мілководне й безстічне."} ]},
           { c:[-1.0,33.5], n:"Ти бачиш, як місцеві вирощують кукурудзу й сорго. Джозеф каже: «Савана — житниця Африки».", q:"Чому савана важлива для сільського господарства?",
             o:[ {t:"Тут родючі ґрунти й достатньо опадів для вирощування культур", ok:true, r:"Так. Савана — зона активного землеробства й скотарства."}, {t:"Тут цілий рік дощі", ok:false, r:"Дощі лише у вологий сезон."}, {t:"Тут немає людей", ok:false, r:"Навпаки, савана густо заселена."} ]},
@@ -434,15 +426,15 @@
           { c:[-33.92,18.42], n:"Ти в Кейптауні. Океан, гори, прохолодний вітер. Гід Пітер каже: «Це Південно-Африканська Республіка — найрозвиненіша країна Африки».", q:"Яка країна є найбільш економічно розвиненою в Африці?",
             o:[ {t:"ПАР", ok:true, r:"Так. ПАР — найрозвиненіша економіка Африки."}, {t:"Єгипет", ok:false, r:"Єгипет — важлива країна, але не найрозвиненіша."}, {t:"Нігерія", ok:false, r:"Нігерія — найнаселеніша, але не найрозвиненіша."} ]},
           { c:[-33.5,19.5], n:"Ви їдете до Капських гір. Пітер каже: «Ці гори — старі, їм понад 300 млн років».", q:"Які гори на південному заході Африки?",
-            o:[ {t:"Капські гори", ok:true, r:"Так. Капські гори — стародавні складчасті гори на півдні."}, {t:"Драконові гори", ok:false, r:"Драконові — на південному сході, і вони значно вищі."}, {t:"Атлас", ok:false, r:"Атлас — на північному заході."} ]},
+            o:[ {t:"Капські гори", ok:true, r:"Так. Капські гори — стародавні складчасті гори на півдні."}, {t:"Драконові гори", ok:false, r:"Драконові — на сході, вищі й молодші."}, {t:"Атлас", ok:false, r:"Атлас — на північному заході."} ]},
           { c:[-24.5,15.0], n:"Ви летите до Намібу. Пісок червоний, спека +40°C, але вночі прохолодно. Пітер каже: «Тут росте дивовижна рослина».", q:"Яка рослина пустелі Наміб отримує вологу з туману?",
             o:[ {t:"Вельвічія дивовижна", ok:true, r:"Так! Вельвічія живе сотні років і збирає вологу з туману."}, {t:"Баобаб", ok:false, r:"Баобаб — у савані."}, {t:"Кактус", ok:false, r:"Кактуси — в Америці."} ]},
           { c:[-23.0,22.0], n:"Ви їдете до Калахарі. Пітер каже: «Тут живуть бушмени — мисливці й збирачі з клацаючими мовами».", q:"Хто такі бушмени?",
             o:[ {t:"Корінні жителі Калахарі з жовтуватою шкірою й клацаючими мовами", ok:true, r:"Так. Бушмени й готтентоти — найдавніші народи Південної Африки."}, {t:"Араби", ok:false, r:"Араби — в Північній Африці."}, {t:"Пігмеї", ok:false, r:"Пігмеї — в екваторіальних лісах."} ]},
-          { c:[-29.5,29.5], n:"Ви летите до Драконових гір. Пітер каже: «Це найвищі гори Південної Африки — крутий уступ височини над узбережжям».", q:"Які гори на південному сході Африки?",
-            o:[ {t:"Драконові гори", ok:true, r:"Так. Драконові гори — найвищі гори півдня материка."}, {t:"Капські гори", ok:false, r:"Капські — на південному заході."}, {t:"Атлас", ok:false, r:"Атлас — на півночі."} ]},
+          { c:[-29.5,29.5], n:"Ви летите до Драконових гір. Пітер каже: «Це найвищі гори Південної Африки».", q:"Які гори на сході Південної Африки?",
+            o:[ {t:"Драконові гори", ok:true, r:"Так. Драконові гори — молоді складчасті гори."}, {t:"Капські гори", ok:false, r:"Капські — на заході."}, {t:"Атлас", ok:false, r:"Атлас — на півночі."} ]},
           { c:[-23.99,31.55], n:"Ви в національному парку Крюгера. Пітер каже: «Це один із найбільших заповідників Африки».", q:"На честь кого названо національний парк Крюгера?",
-            o:[ {t:"На честь президента Трансвалю Пауля Крюгера", ok:true, r:"Так. Парк названо на честь президента Трансвалю, який започаткував його охорону."}, {t:"На честь дослідника", ok:false, r:"Ні, це був державний діяч."}, {t:"На честь тварини", ok:false, r:"Ні, це людина."} ]},
+            o:[ {t:"На честь президента ПАР Пауля Крюгера", ok:true, r:"Так. Парк названо на честь президента Трансваалю."}, {t:"На честь дослідника", ok:false, r:"Ні, це був президент."}, {t:"На честь тварини", ok:false, r:"Ні, це людина."} ]},
           { c:[-30.56,22.94], n:"Ви бачите шахти. Пітер каже: «ПАР — світовий лідер з видобутку золота й алмазів».", q:"Які корисні копалини видобувають у ПАР?",
             o:[ {t:"Золото, алмази, платина", ok:true, r:"Так. ПАР багата на золото, алмази, платину."}, {t:"Нафта", ok:false, r:"Нафта — переважно в Сахарі й Гвінейській затоці."}, {t:"Кам'яне вугілля", ok:false, r:"Вугілля є, але головне — золото й алмази."} ]},
           { c:[-34.0,18.5], n:"Ви повертаєтесь до Кейптауна. Пітер каже: «Тут середземноморський клімат — сухе літо, волога зима».", q:"Який клімат на південному заході ПАР?",
@@ -462,13 +454,13 @@
             o:[ {t:"Він забезпечує воду й родючі ґрунти для сільського господарства в пустелі", ok:true, r:"Так. Без Нілу Єгипет був би пустелею."}, {t:"Він є кордоном між країнами", ok:false, r:"Це не головне."}, {t:"Він не має значення", ok:false, r:"Навпаки, це годувальниця."} ]},
           { c:[15.5,32.5], n:"Ви в Хартумі. Ахмед каже: «Тут зливаються Білий і Синій Ніл».", q:"Які дві річки утворюють Ніл?",
             o:[ {t:"Білий Ніл і Синій Ніл", ok:true, r:"Так. Вони зливаються в Хартумі."}, {t:"Конго й Нігер", ok:false, r:"Це інші річки."}, {t:"Замбезі й Оранжева", ok:false, r:"Це річки півдня."} ]},
-          { c:[8.0,30.5], n:"Ахмед показує на болота: «Це Судд — величезні заболочені рівнини».", q:"Яка природна зона переважає в басейні Білого Нілу?",
+          { c:[11.5,32.5], n:"Ахмед показує на болота: «Це Судд — величезні заболочені рівнини».", q:"Яка природна зона переважає в басейні Білого Нілу?",
             o:[ {t:"Савана й заболочені рівнини", ok:true, r:"Так. Тут чергуються савана й болота."}, {t:"Пустеля", ok:false, r:"Пустеля — північніше."}, {t:"Вологий екваторіальний ліс", ok:false, r:"Ліс — далі на південь."} ]},
           { c:[9.0,39.5], n:"Ви в Ефіопії. Ахмед каже: «Це Ефіопське нагір'я — дах Африки».", q:"Що таке Ефіопське нагір'я?",
             o:[ {t:"Велике вулканічне плато з високими горами й витоками Синього Нілу", ok:true, r:"Так. Тут беруть початок багато річок."}, {t:"Пустеля", ok:false, r:"Це нагір'я, не пустеля."}, {t:"Западина", ok:false, r:"Навпаки, це підвищення."} ]},
           { c:[5.0,35.0], n:"Ви бачите, як люди рибалять у Нілі. Ахмед каже: «Ніл багатий на рибу».", q:"Яке господарське значення Нілу?",
             o:[ {t:"Вода для зрошення, рибальство, транспорт, гідроенергетика", ok:true, r:"Так. Ніл — багатофункціональна річка."}, {t:"Лише транспорт", ok:false, r:"Ні, значення ширше."}, {t:"Лише рибальство", ok:false, r:"Ні, значення ширше."} ]},
-          { c:[-1.0,33.0], n:"Ви наближаєтесь до озера Вікторія. Ахмед каже: «Ось витік Нілу».", q:"З якого озера витікає Ніл?",
+          { c:[2.0,33.0], n:"Ви наближаєтесь до озера Вікторія. Ахмед каже: «Ось витік Нілу».", q:"З якого озера витікає Ніл?",
             o:[ {t:"З озера Вікторія", ok:true, r:"Так. Озеро Вікторія — витік Білого Нілу."}, {t:"З озера Танганьїка", ok:false, r:"Танганьїка — інший басейн."}, {t:"З озера Чад", ok:false, r:"Чад — безстічне."} ]},
           { c:[2.5,32.0], n:"Ахмед каже: «Ніл — найдовша річка світу, понад 6600 км».", q:"Яка довжина Нілу?",
             o:[ {t:"Понад 6600 км", ok:true, r:"Так, приблизно 6650 км. Найдовша річка світу."}, {t:"Близько 3000 км", ok:false, r:"Набагато довша."}, {t:"Близько 1000 км", ok:false, r:"Значно довша."} ]},
@@ -484,7 +476,7 @@
           { c:[-18.77,46.87], n:"Ти на Мадагаскарі. Тут багато рослин і тварин, яких немає більше ніде. Гід Ракуту каже: «Це четвертий за величиною острів світу».", q:"Де розташований Мадагаскар?",
             o:[ {t:"На південному сході Африки, в Індійському океані", ok:true, r:"Так. Мадагаскар відокремився від Африки мільйони років тому."}, {t:"В Атлантичному океані", ok:false, r:"Ні, в Індійському."}, {t:"У Середземному морі", ok:false, r:"Ні, це острів в Індійському океані."} ]},
           { c:[-19.0,46.5], n:"Ракуту показує дерево з дивовижною формою. «Це ендемік — росте лише тут».", q:"Що означає «ендемік»?",
-            o:[ {t:"Вид, що зустрічається лише в одному регіоні", ok:true, r:"Так. На Мадагаскарі багато ендеміків."}, {t:"Вид, що живе всюди", ok:false, r:"Навпаки, лише в одному місці."}, {t:"Вид, що зник", ok:false, r:"Ні, це живий вид."} ]},
+            o:[ {t:"Вид, що зустрічається лише в одному регіоні", ok:true, r:"Так. На Мадагаскарі багато ендеміків."}, {t:"Вид, що живе всюди", ok:false, r:"Навпаки, лише в одному місці."}, {t:"Вид, що зник", ok:false, r:"Ні, це живе вид."} ]},
           { c:[-18.5,47.0], n:"На дереві сидить лемур. Ракуту каже: «Лемури — символ Мадагаскару».", q:"Які тварини є символом Мадагаскару?",
             o:[ {t:"Лемури", ok:true, r:"Так. Лемури живуть лише на Мадагаскарі."}, {t:"Пінгвіни", ok:false, r:"Пінгвіни — в Антарктиді."}, {t:"Кенгуру", ok:false, r:"Кенгуру — в Австралії."} ]},
           { c:[-19.15,44.8], n:"Ви в заповіднику Цінжі-дю-Бемараха. Ракуту каже: «Тут кам'яний ліс».", q:"Що таке Цінжі-дю-Бемараха?",
@@ -492,7 +484,7 @@
           { c:[-18.0,47.5], n:"Ракуту показує плантації ванілі. «Мадагаскар — світовий лідер з виробництва ванілі».", q:"Що вирощують на Мадагаскарі?",
             o:[ {t:"Ваніль, гвоздику, каву", ok:true, r:"Так. Мадагаскар — найбільший виробник ванілі."}, {t:"Пшеницю", ok:false, r:"Пшениця — в інших регіонах."}, {t:"Картоплю", ok:false, r:"Картопля — в помірних широтах."} ]},
           { c:[-20.0,47.0], n:"Ви бачите, як вирубують ліс. Ракуту хмуриться: «Ліси Мадагаскару зникають».", q:"Яка екологічна проблема Мадагаскару?",
-            o:[ {t:"Вирубка лісів і зникнення ендемічних видів", ok:true, r:"Так. Понад 90% первинних лісів уже знищено."}, {t:"Посухи", ok:false, r:"Посухи є, але головна проблема — вирубка."}, {t:"Повені", ok:false, r:"Повені бувають, але головна проблема — вирубка."} ]},
+            o:[ {t:"Вирубка лісів і зникнення ендемічних видів", ok:true, r:"Так. Понад 90% лісів уже знищено."}, {t:"Посухи", ok:false, r:"Посухи є, але головна проблема — вирубка."}, {t:"Повені", ok:false, r:"Повені бувають, але головна проблема — вирубка."} ]},
           { c:[-19.5,47.0], n:"Ракуту каже: «Мадагаскар — острів, тому тут багато ендеміків».", q:"Чому на Мадагаскарі багато ендемічних видів?",
             o:[ {t:"Острів ізольований мільйони років, тому еволюція йшла окремо", ok:true, r:"Так. Ізоляція сприяє виникненню унікальних видів."}, {t:"Тут холодно", ok:false, r:"Клімат тропічний."}, {t:"Тут немає людей", ok:false, r:"Люди є, але ізоляція — головна причина."} ]},
           { c:[-18.0,46.0], n:"Ви на узбережжі. Ракуту каже: «Мадагаскар омивається Індійським океаном».", q:"Який океан омиває Мадагаскар?",
@@ -511,9 +503,7 @@
 
     let score = 0.0;
     let attempts = {};
-    let pinState = {};
     let completedItems = new Set();
-    let stage1Finished = false;
 
     let routeId = "";
     let storyTaskIdx = 0;
@@ -521,7 +511,6 @@
     let storyAttempts = 0;
     let sceneLocked = false;
     let currentRoute = null;
-    let storyTimer = null;
 
     let map = null;
     let markersMap = {};
@@ -529,11 +518,9 @@
     let mapMode = 'loading';
     let fallbackTimers = [];
     let tilesLoadedCount = 0;
-    let listenersBound = false;
 
     const POINT_FIRST_TRY = 12.0 / GEOGRAPHY_ITEMS.length;
     const POINT_SECOND_TRY = POINT_FIRST_TRY / 2;
-    const PIN_CHECK = '<i class="fa-solid fa-check text-[10px] text-white"></i>';
 
     const AudioEngine = {
       ctx: null,
@@ -557,25 +544,24 @@
     };
     function triggerVibration(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
 
-    // ==================== КАРТА З БАГАТОРІВНЕВИМ FALLBACK ====================
-    // Порядок: CARTO без підписів → Esri Dark Gray (без підписів) → OSM (з підписами, останній шанс) → офлайн.
-    // Підписи прибрано навмисно: інакше карта підказує відповіді (назви морів, країн).
+    // ==================== КАРТА ====================
 
     function setMapStatus(text, mode) {
       const el = document.getElementById('map-status');
       const startEl = document.getElementById('start-map-status');
       if (!el) return;
       el.className = '';
-      el.classList.add(mode);
+      el.classList.add(mode === 'ok' ? 'ok' : mode === 'warn' ? 'warn' : 'offline');
       let icon = 'fa-circle-check';
       if (mode === 'warn') icon = 'fa-triangle-exclamation';
       if (mode === 'offline') icon = 'fa-wifi-slash';
       if (mode === 'loading') icon = 'fa-spinner fa-spin';
       el.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${text}</span>`;
+      el.classList.remove('hidden');
       if (startEl) startEl.textContent = 'Карта: ' + text;
 
-      clearTimeout(el._hideTimer);
       if (mode === 'ok' || mode === 'warn') {
+        clearTimeout(el._hideTimer);
         el._hideTimer = setTimeout(() => el.classList.add('hidden'), 6000);
       }
     }
@@ -592,149 +578,180 @@
       currentTileLayer = null;
     }
 
-    // Універсальний шар із переходом на наступний при помилці або таймауті
-    function addTileSource(cfg, next) {
+    // 1. Основний шар - OSM (замість CARTO)
+    function addOsmLayer() {
       removeCurrentTileLayer();
-      clearFallbackTimers();
       tilesLoadedCount = 0;
       mapMode = 'loading';
-      setMapStatus(cfg.loadingText, 'loading');
+      setMapStatus('Завантаження карти (OSM)…', 'loading');
 
-      const layer = L.tileLayer(cfg.url, cfg.options);
-      let switched = false;
-      const goNext = (why) => {
-        if (switched || tilesLoadedCount > 0) return;
-        switched = true;
-        console.warn(`[map] ${cfg.name} ${why} — switching`);
-        next();
-      };
+      const layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19,
+        detectRetina: true
+      });
+      
       layer.on('tileload', () => {
         tilesLoadedCount++;
         if (tilesLoadedCount === 1) {
-          mapMode = cfg.name;
-          setMapStatus(cfg.okText, cfg.okMode);
+          mapMode = 'osm';
+          setMapStatus('Карта завантажена (OSM)', 'ok');
           clearFallbackTimers();
         }
       });
-      layer.on('tileerror', () => goNext('error'));
+      
+      // Якщо перший тайл дає помилку - відразу перемикаємось
+      layer.on('tileerror', () => {
+        if (tilesLoadedCount === 0 && mapMode === 'loading') {
+          console.warn('[map] OSM tile error — switching to Esri');
+          addEsriLayer();
+        }
+      });
+
       layer.addTo(map);
       currentTileLayer = layer;
-      fallbackTimers.push(setTimeout(() => goNext('timeout'), 6000));
+
+      fallbackTimers.push(setTimeout(() => {
+        if (tilesLoadedCount === 0 && mapMode === 'loading') {
+          console.warn('[map] OSM timeout — switching to Esri');
+          addEsriLayer();
+        }
+      }, 5000)); // Трохи швидше - 5с
     }
 
-    function addCartoLayer() {
-      addTileSource({
-        name: 'carto', loadingText: 'Завантаження карти…', okText: 'Карта завантажена', okMode: 'ok',
-        url: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-        options: { attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 19, detectRetina: true }
-      }, addEsriLayer);
-    }
-
+    // 2. Резервний шар - Esri
     function addEsriLayer() {
-      addTileSource({
-        name: 'esri', loadingText: 'Резервний шар…', okText: 'Резервний шар (Esri)', okMode: 'warn',
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-        options: { attribution: '&copy; Esri', maxZoom: 16 }
-      }, addOsmLayer);
+      removeCurrentTileLayer();
+      tilesLoadedCount = 0;
+      mapMode = 'loading';
+      setMapStatus('Резервний шар (Esri)…', 'loading');
+
+      const layer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; Esri',
+        maxZoom: 19
+      });
+      
+      layer.on('tileload', () => {
+        tilesLoadedCount++;
+        if (tilesLoadedCount === 1) {
+          mapMode = 'esri';
+          setMapStatus('Резервний шар (Esri)', 'warn');
+          clearFallbackTimers();
+        }
+      });
+      
+      layer.on('tileerror', () => {
+        if (tilesLoadedCount === 0 && mapMode === 'loading') {
+          console.warn('[map] Esri tile error — switching to OFFLINE');
+          enableOfflineMode();
+        }
+      });
+
+      layer.addTo(map);
+      currentTileLayer = layer;
+
+      fallbackTimers.push(setTimeout(() => {
+        if (tilesLoadedCount === 0 && mapMode === 'loading') {
+          console.warn('[map] Esri timeout — switching to OFFLINE mode');
+          enableOfflineMode();
+        }
+      }, 5000));
     }
 
-    function addOsmLayer() {
-      addTileSource({
-        name: 'osm', loadingText: 'Останній резервний шар…', okText: 'Резервний шар (OSM, з підписами)', okMode: 'warn',
-        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        options: { attribution: '&copy; OpenStreetMap contributors', maxZoom: 19, crossOrigin: true }
-      }, enableOfflineMode);
-    }
-
+    // 3. Офлайн-режим
     function enableOfflineMode() {
       removeCurrentTileLayer();
       mapMode = 'offline';
       clearFallbackTimers();
-      setMapStatus('Офлайн-режим: інтернет недоступний, але мітки працюють', 'offline');
+      setMapStatus('Офлайн-режим: мітки працюють', 'offline');
 
+      // Контур Африки
       L.rectangle([[-35, -18], [37, 52]], {
-        color: '#D4AF37', weight: 2,
-        fillColor: '#15181E', fillOpacity: 0.4,
-        dashArray: '6 4', interactive: false
+        color: '#D4AF37', weight: 2, fillColor: '#15181E', fillOpacity: 0.4, dashArray: '6 4'
       }).addTo(map);
 
+      // Сітка
       for (let lat = -30; lat <= 30; lat += 10) {
-        L.polyline([[lat, -20], [lat, 52]], { color: '#3A4252', weight: 0.6, dashArray: '2 6', opacity: 0.5, interactive: false }).addTo(map);
+        L.polyline([[lat, -20], [lat, 52]], { color: '#3A4252', weight: 0.6, dashArray: '2 6', opacity: 0.5 }).addTo(map);
       }
       for (let lng = -10; lng <= 50; lng += 10) {
-        L.polyline([[-35, lng], [37, lng]], { color: '#3A4252', weight: 0.6, dashArray: '2 6', opacity: 0.5, interactive: false }).addTo(map);
+        L.polyline([[-35, lng], [37, lng]], { color: '#3A4252', weight: 0.6, dashArray: '2 6', opacity: 0.5 }).addTo(map);
       }
-      L.polyline([[0, -20], [0, 52]], { color: '#D4AF37', weight: 1.2, opacity: 0.7, interactive: false }).addTo(map);
-      L.marker([0, -19], {
-        icon: L.divIcon({ className: '', html: '<div style="color:#D4AF37;font-size:9px;font-weight:800;white-space:nowrap">Екватор</div>', iconSize: [40, 10], iconAnchor: [20, 5] }),
-        interactive: false
-      }).addTo(map);
+      L.polyline([[0, -20], [0, 52]], { color: '#D4AF37', weight: 1.2, opacity: 0.7 }).addTo(map);
+
+      const labels = [
+        { name: 'САХАРА', lat: 23, lng: 12, size: 13 },
+        { name: 'Ніл', lat: 21.5, lng: 31, size: 11 },
+        { name: 'Конго', lat: -2.5, lng: 22, size: 11 },
+        { name: 'Нігер', lat: 13, lng: 2, size: 10 },
+        { name: 'Замбезі', lat: -16, lng: 28, size: 10 },
+        { name: 'оз. Вікторія', lat: -1, lng: 33, size: 10 },
+        { name: 'Кіліманджаро', lat: -3, lng: 37, size: 11 },
+        { name: 'Мадагаскар', lat: -19, lng: 47, size: 11 },
+        { name: 'Капські гори', lat: -33, lng: 19, size: 10 },
+        { name: 'Атлас', lat: 31.6, lng: -7, size: 10 },
+        { name: 'Середземне море', lat: 34, lng: 18, size: 10 },
+        { name: 'Червоне море', lat: 20, lng: 38, size: 10 },
+        { name: 'Ґвінейська затока', lat: 2.5, lng: 2.5, size: 10 }
+      ];
+      labels.forEach(p => {
+        L.marker([p.lat, p.lng], {
+          icon: L.divIcon({
+            className: '',
+            html: `<div style="color:#F5E1A4;font-weight:800;font-size:${p.size}px;text-shadow:0 0 6px #000, 0 0 3px #000;white-space:nowrap">${p.name}</div>`,
+            iconSize: [120, 16], iconAnchor: [60, 8]
+          }),
+          interactive: false
+        }).addTo(map);
+      });
     }
 
     function reloadMap() {
       clearFallbackTimers();
-      if (map) {
-        try { map.remove(); } catch (e) {}
-      }
+      if (map) { try { map.remove(); } catch (e) {} }
       markersMap = {};
-      window.storyMarker = null;
       initMap();
       if (currentStage === 1) {
         renderTargetMarkers();
-      } else if (currentStage === 2 && currentRoute && storyTaskIdx < currentRoute.scenes.length) {
-        placeStoryMarker(currentRoute.scenes[storyTaskIdx], false);
+        completedItems.forEach(id => {
+          const pinEl = document.getElementById(`pin-${id}`);
+          if (pinEl) {
+            pinEl.className = 'target-pin correct-1';
+            pinEl.innerHTML = '<i class="fa-solid fa-check text-[10px] text-white"></i>';
+          }
+        });
       }
     }
-
-    // ==================== ІНІЦІАЛІЗАЦІЯ КАРТИ ====================
 
     function initMap() {
       map = L.map('map', {
-        zoomControl: false,
-        attributionControl: true,
-        minZoom: 2,
-        maxZoom: 7,
-        worldCopyJump: true
+        zoomControl: false, attributionControl: true, minZoom: 2, maxZoom: 7, worldCopyJump: true
       }).setView([2.0, 16.0], 3);
 
       map.on('click', () => deselectAllChips());
-      addCartoLayer();
+      addOsmLayer(); // Стартуємо з OSM
 
-      setTimeout(() => map && map.invalidateSize(), 300);
-      if (!listenersBound) {
-        listenersBound = true;
-        window.addEventListener('resize', () => map && map.invalidateSize());
-        window.addEventListener('orientationchange', () => setTimeout(() => map && map.invalidateSize(), 300));
-      }
-    }
-
-    function popupHtml(item) {
-      return `<div style="text-align:center;font-weight:700;font-size:12px;padding:2px 4px;color:#F3F4F6">
-        ${item.name}
-        <div style="font-size:10px;font-weight:400;color:#D1D5DB;margin-top:2px">${item.desc}</div>
-      </div>`;
+      setTimeout(() => map.invalidateSize(), 300);
+      window.addEventListener('resize', () => map.invalidateSize());
+      window.addEventListener('orientationchange', () => setTimeout(() => map.invalidateSize(), 300));
     }
 
     function renderTargetMarkers() {
       GEOGRAPHY_ITEMS.forEach(item => {
-        if (attempts[item.id] === undefined) attempts[item.id] = 0;
-        const done = pinState[item.id];
-        const pinClass = done ? `target-pin ${done}` : 'target-pin pulse';
+        attempts[item.id] = 0;
         const customIcon = L.divIcon({
           className: 'target-marker-icon',
-          html: `<div id="pin-${item.id}" class="${pinClass}" data-id="${item.id}">${done ? PIN_CHECK : ''}</div>`,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
+          html: `<div id="pin-${item.id}" class="target-pin pulse" data-id="${item.id}"></div>`,
+          iconSize: [28, 28], iconAnchor: [14, 14]
         });
         const marker = L.marker([item.lat, item.lng], { icon: customIcon }).addTo(map);
         marker._isTargetMarker = true;
-        if (done) marker.bindPopup(popupHtml(item), { closeButton: false });
         marker.on('click', (e) => { L.DomEvent.stopPropagation(e); AudioEngine.init(); handleTargetClick(item); });
         markersMap[item.id] = marker;
       });
     }
 
-    // ==================== ГРА: ЕТАП 1 ====================
+    // ==================== ЕТАП 1 ====================
 
     function renderChipsTray() {
       const tray = document.getElementById('labels-tray');
@@ -744,21 +761,20 @@
       if (activeCategory !== 'ALL') itemsToRender = itemsToRender.filter(i => i.category === activeCategory);
       itemsToRender.sort(() => Math.random() - 0.5);
 
-      document.getElementById('remaining-count').textContent = GEOGRAPHY_ITEMS.length - completedItems.size;
-
       if (itemsToRender.length === 0 && completedItems.size < GEOGRAPHY_ITEMS.length) {
-        tray.innerHTML = `<span class="text-xs text-slate-400 italic px-2">Всі об'єкти цієї категорії уже позначені! Перемкніть категорію.</span>`;
+        tray.innerHTML = `<span style="font-size:12px;color:#94a3b8;font-style:italic;padding:0 8px;">Всі об'єкти цієї категорії уже позначені! Перемкніть категорію.</span>`;
         return;
       }
       itemsToRender.forEach(item => {
         const chip = document.createElement('button');
         chip.id = `chip-${item.id}`;
-        chip.className = `chip glass-card-asphalt px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 border border-white/10 hover:border-gold-500/40 whitespace-nowrap transition-all duration-200 shrink-0 flex items-center gap-1.5 active:scale-95`;
-        chip.innerHTML = `<i class="fa-solid fa-location-dot text-gold-400 text-[10px]"></i> ${item.name}`;
+        chip.className = `chip glass-card-asphalt`;
+        chip.innerHTML = `<i class="fa-solid fa-location-dot text-gold-400" style="font-size:10px;"></i> ${item.name}`;
         chip.addEventListener('click', (e) => { e.stopPropagation(); AudioEngine.init(); selectChip(item.id); });
         tray.appendChild(chip);
       });
       tray.scrollLeft = scrollLeft;
+      document.getElementById('remaining-count').textContent = GEOGRAPHY_ITEMS.length - completedItems.size;
     }
 
     function selectChip(id) {
@@ -769,37 +785,26 @@
       const chipEl = document.getElementById(`chip-${id}`);
       if (chipEl) chipEl.classList.add('chip-selected');
       const targetItem = GEOGRAPHY_ITEMS.find(i => i.id === id);
-      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-crosshairs text-gold-400 animate-pulse"></i> <span>Знайди: <strong class="text-gold-300 font-bold">${targetItem.name}</strong></span>`;
+      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-crosshairs text-gold-400" style="animation: pulse 1s infinite;"></i> <span>Знайди: <strong class="text-gold-300" style="font-weight:700;">${targetItem.name}</strong></span>`;
       document.getElementById('hint-action').textContent = `Обрано: ${targetItem.name}`;
     }
 
     function deselectAllChips() {
       selectedChipId = null;
       document.querySelectorAll('#labels-tray button').forEach(el => el.classList.remove('chip-selected'));
-      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i> <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>`;
+      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-hand-pointer text-gold-400" style="animation: bounce 1s infinite;"></i> <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>`;
       document.getElementById('hint-action').textContent = `Обери назву об'єкта`;
     }
 
     function handleTargetClick(clickedItem) {
-      if (currentStage !== 1) return;
-
-      // Клік по вже позначеній мітці — просто показати підпис
-      if (completedItems.has(clickedItem.id)) {
-        const m = markersMap[clickedItem.id];
-        if (m && m.getPopup()) m.openPopup();
-        return;
-      }
-
       if (!selectedChipId) {
-        const toast = document.getElementById('instruction-toast');
-        toast.classList.add('shake-anim');
-        setTimeout(() => toast.classList.remove('shake-anim'), 400);
+        document.getElementById('instruction-toast').classList.add('shake-anim');
+        setTimeout(() => document.getElementById('instruction-toast').classList.remove('shake-anim'), 400);
         return;
       }
+      if (completedItems.has(clickedItem.id)) return;
 
-      // Помилка: зараховуємо спробу саме тому об'єкту, який шукали
       if (selectedChipId !== clickedItem.id) {
-        attempts[selectedChipId] = (attempts[selectedChipId] || 0) + 1;
         AudioEngine.playError();
         triggerVibration([80, 40, 80]);
         const pinEl = document.getElementById(`pin-${clickedItem.id}`);
@@ -807,22 +812,30 @@
         return;
       }
 
-      // Правильно: 0 помилок — повний бал, 1 — половина, 2+ — 0
-      const mistakes = attempts[clickedItem.id] || 0;
+      const currentAttempt = (attempts[clickedItem.id] || 0) + 1;
+      attempts[clickedItem.id] = currentAttempt;
+      const pinEl = document.getElementById(`pin-${clickedItem.id}`);
+
       completedItems.add(clickedItem.id);
       let earnedPoints = 0; let attemptClass = "";
-      if (mistakes === 0) { earnedPoints = POINT_FIRST_TRY; attemptClass = "correct-1"; AudioEngine.playSuccess(); }
-      else if (mistakes === 1) { earnedPoints = POINT_SECOND_TRY; attemptClass = "correct-2"; AudioEngine.playSuccess(); }
+      if (currentAttempt === 1) { earnedPoints = POINT_FIRST_TRY; attemptClass = "correct-1"; AudioEngine.playSuccess(); }
+      else if (currentAttempt === 2) { earnedPoints = POINT_SECOND_TRY; attemptClass = "correct-2"; AudioEngine.playSuccess(); }
       else { earnedPoints = 0.0; attemptClass = "correct-3"; AudioEngine.playError(); }
 
       score += earnedPoints;
-      pinState[clickedItem.id] = attemptClass;
       document.getElementById('current-score').textContent = Math.min(12.0, score).toFixed(1);
 
-      const pinEl = document.getElementById(`pin-${clickedItem.id}`);
-      if (pinEl) { pinEl.className = `target-pin ${attemptClass}`; pinEl.innerHTML = PIN_CHECK; }
+      if (pinEl) { pinEl.className = `target-pin ${attemptClass}`; pinEl.innerHTML = `<i class="fa-solid fa-check text-[10px] text-white"></i>`; }
       const marker = markersMap[clickedItem.id];
-      if (marker) marker.bindPopup(popupHtml(clickedItem), { closeButton: false }).openPopup();
+      if (marker) {
+        marker.bindPopup(
+          `<div style="text-align:center;font-weight:700;font-size:12px;padding:2px 4px;color:#F3F4F6">
+             ${clickedItem.name}
+             <div style="font-size:10px;font-weight:400;color:#D1D5DB;margin-top:2px">${clickedItem.desc}</div>
+           </div>`,
+          { closeButton: false }
+        ).openPopup();
+      }
 
       deselectAllChips();
       renderChipsTray();
@@ -835,44 +848,38 @@
       if (currentStage === 1) {
         const remaining = GEOGRAPHY_ITEMS.length - completedItems.size;
         document.getElementById('early-finish-text').innerHTML = `Ти знайшов <b>${completedItems.size} з ${GEOGRAPHY_ITEMS.length}</b> об'єктів.<br><br>Якщо завершиш зараз, за <b>${remaining} незнайдених</b> об'єктів буде нараховано 0 балів. Твоя оцінка становитиме <b>${Math.min(12.0, score).toFixed(1)}</b> з 12.0.`;
-        document.getElementById('modal-early-finish').classList.remove('hidden');
+        document.getElementById('modal-early-finish').classList.add('active');
       } else if (currentStage === 2) {
         const totalScenes = currentRoute?.scenes.length ?? 9;
         const remaining = totalScenes - storyTaskIdx;
         const currentS2 = Math.min(12.0, (storyScore / totalScenes) * 12).toFixed(1);
         document.getElementById('early-finish-text').innerHTML = `Ти пройшов <b>${storyTaskIdx} з ${totalScenes}</b> сцен.<br><br>Якщо завершиш зараз, за <b>${remaining} сцен</b>, що залишилися, буде нараховано 0 балів. Твоя оцінка за історію становитиме <b>${currentS2}</b> з 12.0.`;
-        document.getElementById('modal-early-finish').classList.remove('hidden');
+        document.getElementById('modal-early-finish').classList.add('active');
       }
     }
 
     function executeEarlyFinish() {
-      document.getElementById('modal-early-finish').classList.add('hidden');
-      if (currentStage === 1) {
-        finishStage1();
-      } else if (currentStage === 2) {
-        clearTimeout(storyTimer);
-        finishGame();
-      }
+      document.getElementById('modal-early-finish').classList.remove('active');
+      if (currentStage === 1) { finishStage1(); }
+      else if (currentStage === 2) { finishGame(); }
     }
 
     function finishStage1() {
-      if (stage1Finished) return;
-      stage1Finished = true;
       const finalGrade = Math.min(12.0, Math.round(score * 10) / 10).toFixed(1);
       document.getElementById('inter-score').textContent = finalGrade;
-      document.getElementById('btn-finish-early').classList.add('hidden');
-      document.getElementById('modal-inter').classList.remove('hidden');
+      document.getElementById('btn-finish-early').style.display = 'none';
+      document.getElementById('modal-inter').classList.add('active');
     }
 
-    // ==================== ГРА: ЕТАП 2 ====================
+    // ==================== ЕТАП 2 ====================
 
     function startStage2() {
       currentStage = 2;
-      document.getElementById('stage1-nav').classList.add('hidden');
-      document.getElementById('stage1-footer').classList.add('hidden');
-      document.getElementById('instruction-toast').classList.add('hidden');
-      document.getElementById('stage2-bar').classList.remove('hidden');
-      document.getElementById('btn-finish-early').classList.remove('hidden');
+      document.getElementById('stage1-nav').style.display = 'none';
+      document.getElementById('stage1-footer').style.display = 'none';
+      document.getElementById('instruction-toast').style.display = 'none';
+      document.getElementById('stage2-bar').classList.add('active');
+      document.getElementById('btn-finish-early').style.display = 'flex';
 
       routeId = currentWord;
       currentRoute = ROUTES.find(r => r.id === routeId) || ROUTES[0];
@@ -880,24 +887,13 @@
 
       Object.values(markersMap).forEach(m => { try { map.removeLayer(m); } catch (e) {} });
       markersMap = {};
-      setTimeout(() => map && map.invalidateSize(), 100);
 
       loadStoryScene();
     }
 
     function scrollStoryPanelToBottom() {
-      const panel = document.querySelector('#stage2-bar > div');
-      if (panel) {
-        setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 50);
-      }
-    }
-
-    function placeStoryMarker(sc, fly) {
-      if (window.storyMarker) { try { map.removeLayer(window.storyMarker); } catch (e) {} window.storyMarker = null; }
-      const icon = L.divIcon({ className: 'target-marker-icon', html: `<div class="target-pin pulse" style="background:#3b82f6; border-color:#60a5fa;"></div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
-      window.storyMarker = L.marker(sc.c, { icon, interactive: false }).addTo(map);
-      if (fly) map.flyTo(sc.c, 5, { duration: 0.8 });
-      else map.setView(sc.c, 5);
+      const panel = document.querySelector('.story-panel');
+      if (panel) setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 50);
     }
 
     function loadStoryScene() {
@@ -909,9 +905,9 @@
       document.getElementById('story-narrative').textContent = sc.n;
       document.getElementById('story-question').textContent = sc.q;
       const cons = document.getElementById('story-consequence');
-      cons.classList.add('hidden');
+      cons.style.display = 'none';
       cons.textContent = '';
-      cons.className = "text-xs p-2 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-200 mt-2 hidden";
+      cons.className = '';
 
       const choicesCont = document.getElementById('story-choices');
       choicesCont.innerHTML = '';
@@ -923,14 +919,15 @@
         btn.className = 'story-choice';
         btn.dataset.ok = o.ok ? 'true' : 'false';
         btn.dataset.reason = o.r || '';
-        btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-gold-500/20 text-gold-300 flex items-center justify-center font-bold text-xs shrink-0">${letters[i]}</span> <span>${o.t}</span>`;
+        btn.innerHTML = `<span style="width:24px;height:24px;border-radius:50%;background:rgba(212,175,55,0.2);color:var(--gold-300);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${letters[i]}</span> <span>${o.t}</span>`;
         btn.onclick = () => handleStoryAnswer(btn);
         choicesCont.appendChild(btn);
       });
 
-      const panel = document.querySelector('#stage2-bar > div');
-      if (panel) panel.scrollTop = 0;
-      placeStoryMarker(sc, true);
+      if (window.storyMarker) { try { map.removeLayer(window.storyMarker); } catch (e) {} window.storyMarker = null; }
+      const icon = L.divIcon({ className: 'target-marker-icon', html: `<div class="target-pin pulse" style="background:#3b82f6; border-color:#60a5fa;"></div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
+      window.storyMarker = L.marker(sc.c, { icon }).addTo(map);
+      map.flyTo(sc.c, 5, { duration: 0.8 });
     }
 
     function handleStoryAnswer(btn) {
@@ -947,12 +944,15 @@
         else if (storyAttempts === 2) storyScore += 0.5;
 
         cons.textContent = "✓ " + btn.dataset.reason;
-        cons.className = "text-xs p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 mt-2 block";
+        cons.style.display = 'block';
+        cons.style.background = 'rgba(34,197,94,0.1)';
+        cons.style.border = '1px solid rgba(34,197,94,0.3)';
+        cons.style.color = '#4ade80';
         scrollStoryPanelToBottom();
 
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
         AudioEngine.playSuccess();
-        storyTimer = setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 1700);
+        setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 1700);
         return;
       }
 
@@ -964,25 +964,31 @@
       if (storyAttempts >= 2) {
         sceneLocked = true;
         cons.textContent = "✗ Друга помилка. Правильна відповідь підсвічена. Балів за цю сцену — 0.";
-        cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
+        cons.style.display = 'block';
+        cons.style.background = 'rgba(239,68,68,0.1)';
+        cons.style.border = '1px solid rgba(239,68,68,0.3)';
+        cons.style.color = '#f87171';
         scrollStoryPanelToBottom();
 
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
         const correctBtn = [...document.querySelectorAll('.story-choice')].find(b => b.dataset.ok === 'true');
         if (correctBtn) correctBtn.classList.add('correct');
 
-        storyTimer = setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 2200);
+        setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 2200);
         return;
       }
 
       cons.textContent = "✗ Неправильно. Спробуй ще раз — правильну відповідь не підсвічую.";
-      cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
+      cons.style.display = 'block';
+      cons.style.background = 'rgba(239,68,68,0.1)';
+      cons.style.border = '1px solid rgba(239,68,68,0.3)';
+      cons.style.color = '#f87171';
       scrollStoryPanelToBottom();
     }
 
     function finishGame() {
-      document.getElementById('stage2-bar').classList.add('hidden');
-      document.getElementById('btn-finish-early').classList.add('hidden');
+      document.getElementById('stage2-bar').classList.remove('active');
+      document.getElementById('btn-finish-early').style.display = 'none';
       if (window.storyMarker) { try { map.removeLayer(window.storyMarker); } catch (e) {} window.storyMarker = null; }
 
       const totalScenes = currentRoute?.scenes.length ?? 9;
@@ -999,13 +1005,14 @@
       document.getElementById('journal-word').textContent = currentRoute?.title || '—';
       document.getElementById('journal-score').textContent = total;
 
-      document.getElementById('modal-victory').classList.remove('hidden');
+      document.getElementById('modal-victory').classList.add('active');
     }
 
     // ==================== СТАРТ ====================
 
     document.addEventListener('DOMContentLoaded', () => {
       initMap();
+      renderTargetMarkers(); // Показуємо географічні мітки одразу після завантаження карти
 
       let selectedClass = null;
       let selectedWord = null;
@@ -1043,9 +1050,8 @@
         document.getElementById('class-label').textContent = currentClass;
         const r = ROUTES.find(r => r.id === currentWord);
         document.getElementById('word-label').textContent = r ? r.title : currentWord;
-        document.getElementById('modal-start').classList.add('hidden');
-        document.getElementById('btn-finish-early').classList.remove('hidden');
-        renderTargetMarkers();
+        document.getElementById('modal-start').classList.remove('active');
+        document.getElementById('btn-finish-early').style.display = 'flex';
         renderChipsTray();
         setTimeout(() => map.invalidateSize(), 200);
       });
@@ -1053,10 +1059,8 @@
       document.querySelectorAll('.cat-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
           const target = e.currentTarget;
-          document.querySelectorAll('.cat-tab').forEach(t => {
-            t.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap";
-          });
-          target.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md whitespace-nowrap";
+          document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+          target.classList.add('active');
           activeCategory = target.getAttribute('data-cat');
           deselectAllChips();
           renderChipsTray();
@@ -1064,7 +1068,7 @@
       });
 
       document.getElementById('btn-goto-stage2').addEventListener('click', () => {
-        document.getElementById('modal-inter').classList.add('hidden');
+        document.getElementById('modal-inter').classList.remove('active');
         startStage2();
       });
 
@@ -1077,15 +1081,6 @@
         btn.classList.add('spinning');
         setTimeout(() => btn.classList.remove('spinning'), 900);
         reloadMap();
-      });
-
-      document.getElementById('btn-copy-result').addEventListener('click', () => {
-        const text = `${document.getElementById('journal-class').textContent} · ${document.getElementById('journal-word').textContent} · ${document.getElementById('journal-score').textContent}`;
-        const label = document.getElementById('copy-label');
-        const done = () => { label.textContent = 'Скопійовано ✓'; setTimeout(() => label.textContent = 'Скопіювати результат', 2000); };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(done).catch(() => { label.textContent = text; });
-        } else { label.textContent = text; }
       });
     });
   </script>
