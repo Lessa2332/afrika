@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Африка: Подорож дослідника (7 клас НУШ)</title>
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -63,6 +63,9 @@
     .story-choice { min-height: 46px; padding: 10px 14px; background: rgba(35, 41, 52, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #F3F4F6; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; line-height: 1.3; transition: all 0.2s; margin-bottom: 6px; width: 100%; }
     .story-choice.correct { background: rgba(34,197,94,0.25) !important; border-color: #22c55e !important; color: #4ade80 !important; }
     .story-choice.incorrect { background: rgba(239,68,68,0.25) !important; border-color: #ef4444 !important; color: #f87171 !important; }
+
+    .class-btn { padding: 14px 10px; border-radius: 14px; background: rgba(35,41,52,0.9); border: 1px solid rgba(255,255,255,0.1); color: #F3F4F6; font-weight: 700; font-size: 1rem; transition: all 0.2s; }
+    .class-btn.active { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%); color: #0F1115; border-color: #FFF1C5; box-shadow: 0 0 18px rgba(212,175,55,0.7); }
   </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden antialiased select-none">
@@ -76,8 +79,8 @@
         <h1 class="text-xs sm:text-base font-extrabold tracking-wide font-display text-slate-100 flex items-center gap-2">
           АФРИКА <span class="bg-gold-500/20 text-gold-300 text-[10px] sm:text-xs px-2 py-0.5 rounded-full border border-gold-500/40">7 клас НУШ</span>
         </h1>
-        <p class="text-[11px] text-slate-400 font-medium truncate max-w-[140px] sm:max-w-xs" id="user-display-name">
-          Учень: <span class="text-gold-400 font-semibold" id="student-name-label">Не обрано</span>
+        <p class="text-[11px] text-slate-400 font-medium truncate max-w-[160px] sm:max-w-xs">
+          Клас: <span class="text-gold-400 font-semibold" id="class-label">—</span> · Слово: <span class="text-gold-400 font-semibold" id="word-label">—</span>
         </p>
       </div>
     </div>
@@ -141,6 +144,7 @@
     <div id="labels-tray" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1 touch-pan-x items-center min-h-[50px]"></div>
   </footer>
 
+  <!-- СТАРТОВИЙ ЕКРАН -->
   <div id="modal-start" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/85 backdrop-blur-md px-4">
     <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/40 shadow-2xl space-y-5 relative overflow-hidden">
       <div class="text-center space-y-2">
@@ -150,12 +154,30 @@
         <h2 class="text-2xl font-black font-display text-slate-100">Африка: Подорож</h2>
         <p class="text-xs text-slate-300 leading-relaxed">Тренажер НУШ (7 клас). Етап 1: Карта. Етап 2: Історія.</p>
       </div>
+
       <div class="space-y-2">
-        <label class="block text-xs font-semibold text-gold-300 uppercase tracking-wider">Оберіть учня / ученицю:</label>
-        <select id="student-select" class="w-full bg-asphalt-900 border border-gold-500/40 rounded-2xl px-4 py-3.5 text-sm text-slate-100 focus:outline-none focus:border-gold-400 appearance-none font-medium">
-          <option value="" disabled selected>Завантаження списку...</option>
-        </select>
+        <label class="block text-xs font-semibold text-gold-300 uppercase tracking-wider">Оберіть клас:</label>
+        <div id="class-grid" class="grid grid-cols-5 gap-2">
+          <button class="class-btn" data-class="7А">7А</button>
+          <button class="class-btn" data-class="7Б">7Б</button>
+          <button class="class-btn" data-class="7В">7В</button>
+          <button class="class-btn" data-class="7Г">7Г</button>
+          <button class="class-btn" data-class="7Д">7Д</button>
+        </div>
       </div>
+
+      <div class="space-y-2">
+        <label class="block text-xs font-semibold text-gold-300 uppercase tracking-wider">Оберіть слово-маршрут:</label>
+        <div id="word-grid" class="grid grid-cols-2 gap-2">
+          <button class="class-btn" data-word="forest">🌿 Ліс</button>
+          <button class="class-btn" data-word="sahara">🏜️ Сахара</button>
+          <button class="class-btn" data-word="savanna">🦒 Савана</button>
+          <button class="class-btn" data-word="south">🦁 Південь</button>
+          <button class="class-btn" data-word="nile">🚣 Ніл</button>
+          <button class="class-btn" data-word="madagascar">🌴 Мадагаскар</button>
+        </div>
+      </div>
+
       <button id="btn-start-game" disabled class="w-full py-4 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">РОЗПОЧАТИ</button>
     </div>
   </div>
@@ -180,8 +202,8 @@
         <i class="fa-solid fa-map-location-dot"></i>
       </div>
       <h2 class="text-xl font-black font-display text-slate-100">Етап 1 завершено!</h2>
-      <p class="text-sm text-slate-300">Твоя оцінка за карту: <strong id="inter-score" class="text-gold-300 text-lg">0.0</strong> / 12.0</p>
-      <p class="text-xs text-slate-400 italic">Тепер на тебе чекає справжня подорож Африкою. Твій маршрут визначено за іменем.</p>
+      <p class="text-sm text-slate-300">Оцінка за карту: <strong id="inter-score" class="text-gold-300 text-lg">0.0</strong> / 12.0</p>
+      <p class="text-xs text-slate-400 italic">Далі — історія за обраним словом.</p>
       <button id="btn-goto-stage2" class="w-full py-4 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl mt-2">У ПОДОРОЖ →</button>
     </div>
   </div>
@@ -192,10 +214,13 @@
         <i class="fa-solid fa-trophy"></i>
       </div>
       <h2 class="text-2xl font-black font-display text-slate-100">Подорож завершена!</h2>
+
       <div class="glass-card-asphalt rounded-2xl p-5 border border-gold-500/40 bg-asphalt-900/80 space-y-1">
         <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Загальна оцінка</span>
         <div class="text-5xl font-black gold-gradient-text py-1" id="final-total-score">0.0</div>
+        <div class="text-xs text-slate-400" id="final-context"></div>
       </div>
+
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5">
           <span class="text-slate-400 block text-[10px]">Етап 1 (Карта)</span>
@@ -206,14 +231,19 @@
           <span class="font-extrabold text-gold-300 text-base" id="final-s2">0.0</span>
         </div>
       </div>
-      <div id="sync-status" class="text-xs px-3 py-2.5 rounded-xl bg-asphalt-900 border border-asphalt-700 text-slate-300 flex items-center justify-center gap-2"></div>
+
+      <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5 text-left text-xs text-slate-300">
+        <div class="font-bold text-gold-300 mb-1">Дані для журналу:</div>
+        <div>Клас: <span id="journal-class" class="font-semibold">—</span></div>
+        <div>Маршрут: <span id="journal-word" class="font-semibold">—</span></div>
+        <div>Оцінка: <span id="journal-score" class="font-semibold text-gold-300">—</span></div>
+      </div>
+
       <button onclick="location.reload()" class="w-full py-3.5 rounded-2xl glass-card-asphalt border border-gold-500/40 hover:bg-asphalt-800 text-gold-300 font-bold text-xs transition-all">Завершити</button>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/ВАШ_ID/exec"; 
-
     const GEOGRAPHY_ITEMS = [
       { id: '1', name: 'мис Рас-Енгела', lat: 37.348, lng: 9.845, category: 'EXTREME', desc: 'Північна крайня точка' },
       { id: '2', name: 'мис Агульяс (Голковий)', lat: -34.833, lng: 20.000, category: 'EXTREME', desc: 'Південна крайня точка' },
@@ -392,21 +422,22 @@
       }
     ];
 
-    let currentStudent = "";
+    let currentClass = "";
+    let currentWord = "";
     let currentStage = 1;
     let activeCategory = "ALL";
     let selectedChipId = null;
-    
+
     let score = 0.0;
     let attempts = {};
     let completedItems = new Set();
-    
+
     let routeId = "";
     let storyTaskIdx = 0;
     let storyScore = 0;
     let storyAttempts = 0;
     let currentRoute = null;
-    
+
     let map = null;
     let markersMap = {};
 
@@ -559,7 +590,6 @@
       document.getElementById('inter-score').textContent = finalGrade;
       document.getElementById('btn-finish-early').classList.add('hidden');
       document.getElementById('modal-inter').classList.remove('hidden');
-      submitToServer(currentStudent, "1", finalGrade, "map");
     }
 
     function startStage2() {
@@ -569,13 +599,13 @@
       document.getElementById('instruction-toast').classList.add('hidden');
       document.getElementById('stage2-bar').classList.remove('hidden');
       document.getElementById('btn-finish-early').classList.remove('hidden');
-      
-      routeId = ROUTES[hashCode(currentStudent) % ROUTES.length].id;
-      currentRoute = ROUTES.find(r => r.id === routeId);
+
+      routeId = currentWord;
+      currentRoute = ROUTES.find(r => r.id === routeId) || ROUTES[0];
       storyTaskIdx = 0; storyScore = 0;
-      
+
       Object.values(markersMap).forEach(m => map.removeLayer(m));
-      
+
       loadStoryScene();
     }
 
@@ -592,7 +622,7 @@
       choicesCont.innerHTML = '';
       const letters = ["А","Б","В","Г","Д"];
       const shuffled = [...sc.o].sort(() => 0.5 - Math.random());
-      
+
       shuffled.forEach((o, i) => {
         const btn = document.createElement('button');
         btn.className = 'story-choice';
@@ -613,11 +643,11 @@
         btn.classList.add('correct');
         if (storyAttempts === 1) storyScore += 1.0;
         else if (storyAttempts === 2) storyScore += 0.5;
-        
+
         const cons = document.getElementById('story-consequence');
         cons.textContent = "✓ " + opt.r;
         cons.className = "text-xs p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 mt-2 block";
-        
+
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
         AudioEngine.playSuccess();
         setTimeout(() => { storyTaskIdx++; loadStoryScene(); }, 1800);
@@ -640,53 +670,57 @@
       document.getElementById('final-s1').textContent = s1Grade.toFixed(1);
       document.getElementById('final-s2').textContent = finalS2;
       document.getElementById('final-total-score').textContent = total;
+      document.getElementById('final-context').textContent = `${currentClass} · ${currentRoute.title}`;
+
+      document.getElementById('journal-class').textContent = currentClass;
+      document.getElementById('journal-word').textContent = currentRoute.title;
+      document.getElementById('journal-score').textContent = total;
+
       document.getElementById('modal-victory').classList.remove('hidden');
-      
-      submitToServer(currentStudent, "2", finalS2, currentRoute.title);
-    }
-
-    async function submitToServer(studentName, stage, score, route) {
-      const statusEl = document.getElementById('sync-status');
-      statusEl.className = "text-xs px-3 py-2.5 rounded-xl bg-asphalt-900 border border-asphalt-700 text-slate-300 flex items-center justify-center gap-2";
-      statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold-400"></i> <span>Відправка в Google Таблицю...</span>`;
-
-      if (!API_URL || API_URL.includes("ВАШ_ID")) {
-        statusEl.innerHTML = `<i class="fa-solid fa-circle-info text-gold-400"></i> <span>Результат збережено локально (немає API URL)</span>`;
-        return;
-      }
-
-      try {
-        const body = new URLSearchParams({ student: studentName, stage, score, route, timestamp: new Date().toLocaleString('uk-UA') });
-        const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
-        
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-
-        statusEl.className = "text-xs px-3 py-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 flex items-center justify-center gap-2";
-        statusEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>Успішно збережено в Google Таблицю!</span>`;
-      } catch (err) {
-        console.error("Помилка відправки:", err);
-        statusEl.className = "text-xs px-3 py-2.5 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 flex items-center justify-center gap-2";
-        statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i> <span>Помилка: ${err.message}</span>`;
-      }
-    }
-
-    function hashCode(str) {
-      let h = 0; for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h |= 0; } return Math.abs(h);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       initMap();
 
-      const selectEl = document.getElementById('student-select');
-      selectEl.innerHTML = `<option value="" disabled selected>Оберіть ім'я зі списку...</option>`;
-      const fallbackList = ["Бохонок Олеся","Бондаренко Олексій","Василенко Данило","Гриценко Марія","Дмитренко Артем","Іванова Софія","Коваленко Максим","Мельник Анна","Шевченко Тарас","Яковенко Єва"];
-      
-      fallbackList.forEach(name => { const opt = document.createElement('option'); opt.value = name; opt.textContent = name; selectEl.appendChild(opt); });
-      document.getElementById('btn-start-game').disabled = false;
+      let selectedClass = null;
+      let selectedWord = null;
 
-      selectEl.addEventListener('change', (e) => { currentStudent = e.target.value; });
+      const classBtns = document.querySelectorAll('#class-grid .class-btn');
+      const wordBtns = document.querySelectorAll('#word-grid .class-btn');
+      const startBtn = document.getElementById('btn-start-game');
+
+      function checkStartEnabled() {
+        startBtn.disabled = !(selectedClass && selectedWord);
+      }
+
+      classBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          classBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedClass = btn.dataset.class;
+          checkStartEnabled();
+        });
+      });
+
+      wordBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          wordBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedWord = btn.dataset.word;
+          checkStartEnabled();
+        });
+      });
+
+      startBtn.addEventListener('click', () => {
+        if (!selectedClass || !selectedWord) return;
+        currentClass = selectedClass;
+        currentWord = selectedWord;
+        document.getElementById('class-label').textContent = currentClass;
+        document.getElementById('word-label').textContent = ROUTES.find(r => r.id === currentWord).title;
+        document.getElementById('modal-start').classList.add('hidden');
+        document.getElementById('btn-finish-early').classList.remove('hidden');
+        renderChipsTray();
+      });
 
       document.querySelectorAll('.cat-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
@@ -696,14 +730,6 @@
           deselectAllChips();
           renderChipsTray();
         });
-      });
-
-      document.getElementById('btn-start-game').addEventListener('click', () => {
-        if (!currentStudent) return;
-        document.getElementById('student-name-label').textContent = currentStudent;
-        document.getElementById('modal-start').classList.add('hidden');
-        document.getElementById('btn-finish-early').classList.remove('hidden');
-        renderChipsTray();
       });
 
       document.getElementById('btn-goto-stage2').addEventListener('click', () => {
