@@ -1,329 +1,3 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Африка: Подорож дослідника (7 клас НУШ)</title>
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Montserrat', 'sans-serif'] },
-          colors: {
-            asphalt: { 950: '#0F1115', 900: '#15181E', 800: '#1F232B', 700: '#2A303C', 600: '#3A4252' },
-            gold: { 300: '#F5E1A4', 400: '#EED380', 500: '#D4AF37', 600: '#AA8820', 700: '#7F6413' }
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    * { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; box-sizing: border-box; }
-    html, body { height: 100%; height: 100dvh; min-height: 100dvh; }
-    body {
-      margin: 0; padding: 0; overflow: hidden;
-      background-color: #0F1115; color: #F3F4F6;
-      font-family: 'Inter', sans-serif;
-      padding-bottom: env(safe-area-inset-bottom, 0);
-      display: flex; flex-direction: column;
-    }
-
-    .glass-panel-asphalt { background: rgba(26, 30, 38, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.22); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1); }
-    .glass-card-asphalt { background: rgba(35, 41, 52, 0.8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
-    .gold-gradient-text { background: linear-gradient(135deg, #FFF1C5 0%, #D4AF37 50%, #9A7B1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .gold-button-bg { background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #AA8820 100%); color: #0F1115; box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3); }
-    .gold-button-bg:active { transform: scale(0.97); }
-
-    main { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden; }
-
-    #map { position: absolute; inset: 0; height: 100%; width: 100%; background: #0B0D10; z-index: 0; }
-    .leaflet-container { background: #0B0D10 !important; font-family: 'Inter', sans-serif; }
-    .leaflet-control-attribution { background: rgba(15, 17, 21, 0.7) !important; color: #9CA3AF !important; font-size: 10px !important; backdrop-filter: blur(6px); border-radius: 6px; padding: 2px 8px !important; margin: 6px !important; }
-    .leaflet-control-attribution a { color: #D4AF37 !important; }
-
-    /* Темна тема для попапів Leaflet — виправляє білий елемент на карті */
-    .leaflet-popup-content-wrapper {
-      background: rgba(26, 30, 38, 0.97) !important;
-      color: #F3F4F6 !important;
-      border: 1px solid rgba(212, 175, 55, 0.5) !important;
-      border-radius: 12px !important;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
-    }
-    .leaflet-popup-content { margin: 8px 12px !important; color: #F3F4F6 !important; }
-    .leaflet-popup-tip { background: rgba(26, 30, 38, 0.97) !important; border: 1px solid rgba(212, 175, 55, 0.5) !important; }
-    .leaflet-popup-close-button { color: #D4AF37 !important; }
-    .leaflet-popup { z-index: 700 !important; }
-
-    .target-marker-icon { display: flex; align-items: center; justify-content: center; }
-    .target-pin { width: 28px; height: 28px; border-radius: 50%; background: rgba(212, 175, 55, 0.28); border: 2px solid #D4AF37; box-shadow: 0 0 14px rgba(212, 175, 55, 0.6); cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; position: relative; }
-    .target-pin::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #F3E5AB; }
-    .target-pin.pulse { animation: gold-pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1); }
-    .target-pin.correct-1 { background: rgba(34, 197, 94, 0.45); border-color: #22c55e; box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); cursor: default; }
-    .target-pin.correct-2 { background: rgba(234, 179, 8, 0.45); border-color: #eab308; box-shadow: 0 0 16px rgba(234, 179, 8, 0.6); cursor: default; }
-    .target-pin.correct-3 { background: rgba(239, 68, 68, 0.45); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.6); cursor: default; }
-
-    @keyframes gold-pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); } 70% { transform: scale(1.25); box-shadow: 0 0 0 14px rgba(212, 175, 55, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
-
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    .chip-selected { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%) !important; color: #0F1115 !important; font-weight: 700 !important; border-color: #FFF1C5 !important; box-shadow: 0 0 18px rgba(212, 175, 55, 0.7); transform: translateY(-2px); }
-
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
-    .shake-anim { animation: shake 0.4s ease-in-out; }
-
-    .narrative { font-size: 0.82rem; line-height: 1.4; color: #F3F4F6; font-style: italic; border-left: 3px solid #D4AF37; padding-left: 10px; margin-bottom: 8px; }
-    .story-choice { min-height: 44px; padding: 9px 12px; background: rgba(35, 41, 52, 0.92); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #F3F4F6; font-weight: 600; font-size: 0.82rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 9px; line-height: 1.3; transition: all 0.2s; margin-bottom: 6px; width: 100%; }
-    .story-choice.correct { background: rgba(34,197,94,0.28) !important; border-color: #22c55e !important; color: #4ade80 !important; }
-    .story-choice.incorrect { background: rgba(239,68,68,0.28) !important; border-color: #ef4444 !important; color: #f87171 !important; }
-    .story-choice:disabled { opacity: 1; }
-
-    .class-btn { padding: 13px 8px; border-radius: 14px; background: rgba(35,41,52,0.92); border: 1px solid rgba(255,255,255,0.1); color: #F3F4F6; font-weight: 700; font-size: 0.95rem; transition: all 0.2s; }
-    .class-btn.active { background: linear-gradient(135deg, #D4AF37 0%, #AA8820 100%); color: #0F1115; border-color: #FFF1C5; box-shadow: 0 0 18px rgba(212,175,55,0.7); }
-
-    /* Мобільна адаптація */
-    @media (max-width: 640px) {
-      header { padding: 6px 10px !important; }
-      header h1 { font-size: 11px !important; }
-      header .w-10 { width: 34px !important; height: 34px !important; font-size: 14px !important; }
-      #stage1-nav { padding: 4px 6px !important; gap: 4px !important; }
-      .cat-tab { padding: 6px 10px !important; font-size: 10px !important; }
-      #stage1-footer { padding: 6px 8px !important; }
-      #labels-tray { min-height: 44px !important; gap: 6px !important; }
-      .chip { padding: 8px 10px !important; font-size: 11px !important; }
-      #instruction-toast { top: 6px !important; padding: 6px 10px !important; }
-      #instruction-toast p { font-size: 10px !important; }
-      #btn-recenter { bottom: 14px !important; right: 10px !important; width: 42px !important; height: 42px !important; }
-      #stage2-bar { padding: 6px !important; }
-      #stage2-bar > div { padding: 10px !important; max-height: 62dvh; overflow-y: auto; }
-      .narrative { font-size: 0.78rem !important; }
-      #story-question { font-size: 0.82rem !important; margin-bottom: 6px !important; }
-      .story-choice { font-size: 0.78rem !important; min-height: 42px !important; padding: 8px 10px !important; }
-      #map-status { bottom: 66px !important; }
-    }
-    @media (max-width: 380px) {
-      .cat-tab { font-size: 9px !important; padding: 5px 8px !important; }
-      .story-choice { font-size: 0.74rem !important; }
-    }
-
-    #map-status {
-      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-      z-index: 15; padding: 5px 12px; border-radius: 9999px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
-      display: flex; align-items: center; gap: 6px;
-      pointer-events: none; transition: opacity 0.3s;
-      background: rgba(15,17,21,0.85); border: 1px solid rgba(255,255,255,0.15);
-      color: #9CA3AF; backdrop-filter: blur(8px);
-      max-width: 92%;
-    }
-    #map-status.ok { border-color: rgba(34,197,94,0.5); color: #4ade80; }
-    #map-status.warn { border-color: rgba(234,179,8,0.5); color: #facc15; }
-    #map-status.offline { border-color: rgba(239,68,68,0.5); color: #f87171; }
-    #map-status.hidden { opacity: 0; pointer-events: none; }
-
-    #btn-reload-map {
-      position: absolute; bottom: 14px; left: 10px; z-index: 20;
-      width: 42px; height: 42px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      color: #D4AF37; box-shadow: 0 4px 18px rgba(0,0,0,0.5);
-      background: rgba(26,30,38,0.9); border: 1px solid rgba(212,175,55,0.4);
-    }
-    #btn-reload-map:active { transform: scale(0.95); }
-    #btn-reload-map.spinning i { animation: spin 0.8s linear; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
-</head>
-<body class="antialiased select-none">
-
-  <header class="glass-panel-asphalt z-20 px-3 py-2 flex items-center justify-between gap-2 border-b border-gold-500/30 shrink-0">
-    <div class="flex items-center space-x-2">
-      <div class="w-10 h-10 rounded-2xl gold-button-bg flex items-center justify-center font-black text-lg shrink-0">
-        <i class="fa-solid fa-earth-africa"></i>
-      </div>
-      <div class="min-w-0">
-        <h1 class="text-xs sm:text-base font-extrabold tracking-wide font-display text-slate-100 flex items-center gap-2 whitespace-nowrap">
-          АФРИКА <span class="bg-gold-500/20 text-gold-300 text-[9px] sm:text-xs px-1.5 py-0.5 rounded-full border border-gold-500/40">7 кл.</span>
-        </h1>
-        <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate max-w-[150px] sm:max-w-xs">
-          <span class="text-gold-400 font-semibold" id="class-label">—</span> · <span class="text-gold-400 font-semibold" id="word-label">—</span>
-        </p>
-      </div>
-    </div>
-
-    <div class="flex items-center space-x-2 shrink-0">
-      <button id="btn-finish-early" class="hidden glass-card-asphalt px-2.5 py-1.5 rounded-2xl border border-rose-500/40 text-rose-400 transition-all text-[10px] font-bold flex items-center gap-1" onclick="confirmEarlyFinish()">
-        <i class="fa-solid fa-flag-checkered"></i> <span class="hidden sm:inline">Завершити</span>
-      </button>
-
-      <div class="glass-card-asphalt px-2.5 py-1.5 rounded-2xl border border-gold-500/30 flex items-center space-x-2">
-        <i class="fa-solid fa-award text-gold-400 text-xs"></i>
-        <div class="text-right">
-          <div class="text-[8px] text-slate-400 font-semibold uppercase tracking-wider">Оцінка</div>
-          <div class="text-[11px] sm:text-sm font-extrabold text-gold-300 leading-none whitespace-nowrap">
-            <span id="current-score">0.0</span> <span class="text-[9px] text-slate-400 font-normal">/ 12</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <nav id="stage1-nav" class="glass-panel-asphalt z-10 px-2 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar border-b border-white/5 shrink-0">
-    <button data-cat="ALL" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md whitespace-nowrap">Всі</button>
-    <button data-cat="EXTREME" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">📍 Точки</button>
-    <button data-cat="WATER" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">🌊 Води</button>
-    <button data-cat="RELIEF" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">⛰️ Рельєф</button>
-    <button data-cat="DESERT" class="cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap">🏜️ Пустелі</button>
-  </nav>
-
-  <main>
-    <div id="map"></div>
-
-    <div id="instruction-toast" class="absolute top-3 left-1/2 -translate-x-1/2 z-10 w-[94%] sm:w-auto glass-panel-asphalt px-3 py-2 rounded-2xl border border-gold-500/30 text-center shadow-2xl transition-all duration-300 pointer-events-none">
-      <p class="text-xs text-slate-200 font-medium flex items-center justify-center gap-2" id="toast-text">
-        <i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i>
-        <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>
-      </p>
-    </div>
-
-    <div id="stage2-bar" class="hidden absolute bottom-0 left-0 right-0 z-30 p-3 pointer-events-none flex flex-col items-center">
-      <div class="w-full max-w-xl glass-panel-asphalt p-3.5 rounded-2xl border border-gold-500/40 pointer-events-auto shadow-2xl">
-        <div id="story-narrative" class="narrative"></div>
-        <div id="story-question" class="text-sm font-bold text-gold-300 text-center mb-2"></div>
-        <div id="story-choices"></div>
-        <div id="story-consequence" class="text-xs p-2 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-200 mt-2 hidden"></div>
-      </div>
-    </div>
-
-    <div id="map-status" class="hidden"></div>
-
-    <button id="btn-reload-map" title="Оновити карту" aria-label="Оновити карту">
-      <i class="fa-solid fa-rotate text-base"></i>
-    </button>
-
-    <button id="btn-recenter" class="absolute bottom-4 right-3 z-10 w-11 h-11 rounded-2xl glass-panel-asphalt border border-gold-500/30 flex items-center justify-center text-gold-400 shadow-xl hover:bg-asphalt-800 active:scale-95 transition-all">
-      <i class="fa-solid fa-crosshairs text-base"></i>
-    </button>
-  </main>
-
-  <footer id="stage1-footer" class="glass-panel-asphalt z-20 px-2 py-2 border-t border-gold-500/30 flex flex-col gap-1.5 shrink-0">
-    <div class="flex items-center justify-between text-xs px-1">
-      <span class="text-slate-400 font-semibold flex items-center gap-1.5 text-[10px] uppercase tracking-wider">
-        <i class="fa-solid fa-layer-group text-gold-400"></i> Залишилось: <span id="remaining-count" class="text-gold-300 font-bold">28</span> / 28
-      </span>
-      <span class="text-[10px] text-gold-400 font-medium truncate" id="hint-action">Обери назву зі списку</span>
-    </div>
-    <div id="labels-tray" class="flex gap-2 overflow-x-auto no-scrollbar py-1 px-1 touch-pan-x items-center min-h-[46px]"></div>
-  </footer>
-
-  <!-- СТАРТОВИЙ ЕКРАН -->
-  <div id="modal-start" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/85 backdrop-blur-md px-4 overflow-y-auto">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-5 border border-gold-500/40 shadow-2xl space-y-4 my-4">
-      <div class="text-center space-y-1">
-        <div class="inline-flex w-14 h-14 rounded-3xl gold-button-bg items-center justify-center text-asphalt-950 text-2xl shadow-lg shadow-gold-500/30">
-          <i class="fa-solid fa-compass"></i>
-        </div>
-        <h2 class="text-xl font-black font-display text-slate-100">Африка: Подорож</h2>
-        <p class="text-[11px] text-slate-300 leading-relaxed">Етап 1: Карта. Етап 2: Історія.</p>
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold text-gold-300 uppercase tracking-wider">Клас:</label>
-        <div id="class-grid" class="grid grid-cols-5 gap-1.5">
-          <button class="class-btn" data-class="7А">7А</button>
-          <button class="class-btn" data-class="7Б">7Б</button>
-          <button class="class-btn" data-class="7В">7В</button>
-          <button class="class-btn" data-class="7Г">7Г</button>
-          <button class="class-btn" data-class="7Д">7Д</button>
-        </div>
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="block text-[11px] font-semibold text-gold-300 uppercase tracking-wider">Слово-маршрут:</label>
-        <div id="word-grid" class="grid grid-cols-2 gap-1.5">
-          <button class="class-btn" data-word="forest">🌿 Ліс</button>
-          <button class="class-btn" data-word="sahara">🏜️ Сахара</button>
-          <button class="class-btn" data-word="savanna">🦒 Савана</button>
-          <button class="class-btn" data-word="south">🦁 Південь</button>
-          <button class="class-btn" data-word="nile">🚣 Ніл</button>
-          <button class="class-btn" data-word="madagascar">🌴 Мадагаскар</button>
-        </div>
-      </div>
-
-      <div id="start-map-status" class="text-[10px] text-center text-slate-400 italic">Перевірка карти…</div>
-
-      <button id="btn-start-game" disabled class="w-full py-3.5 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">РОЗПОЧАТИ</button>
-    </div>
-  </div>
-
-  <div id="modal-early-finish" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden">
-    <div class="glass-panel-asphalt w-full max-w-sm rounded-3xl p-6 border border-rose-500/40 shadow-2xl text-center space-y-4">
-      <div class="inline-flex w-16 h-16 rounded-full bg-rose-500/20 border border-rose-500/40 items-center justify-center text-rose-400 text-3xl mb-1">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <h2 class="text-lg font-black font-display text-slate-100">Завершити достроково?</h2>
-      <p class="text-xs text-slate-300" id="early-finish-text">Ти не знайшов всі об'єкти. За незнайдені буде нараховано 0 балів.</p>
-      <div class="flex gap-2 mt-4">
-        <button onclick="document.getElementById('modal-early-finish').classList.add('hidden')" class="flex-1 py-3 rounded-xl glass-card-asphalt text-slate-300 font-bold text-xs hover:bg-asphalt-800">Продовжити</button>
-        <button onclick="executeEarlyFinish()" class="flex-1 py-3 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 shadow-lg">Завершити</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-inter" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/40 shadow-2xl text-center space-y-4">
-      <div class="inline-flex w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/40 items-center justify-center text-emerald-400 text-3xl mb-1">
-        <i class="fa-solid fa-map-location-dot"></i>
-      </div>
-      <h2 class="text-xl font-black font-display text-slate-100">Етап 1 завершено!</h2>
-      <p class="text-sm text-slate-300">Оцінка за карту: <strong id="inter-score" class="text-gold-300 text-lg">0.0</strong> / 12.0</p>
-      <p class="text-xs text-slate-400 italic">Далі — історія за обраним словом.</p>
-      <button id="btn-goto-stage2" class="w-full py-4 rounded-2xl gold-button-bg font-extrabold text-sm tracking-wide shadow-xl mt-2">У ПОДОРОЖ →</button>
-    </div>
-  </div>
-
-  <div id="modal-victory" class="fixed inset-0 z-50 flex items-center justify-center bg-asphalt-950/90 backdrop-blur-md px-4 hidden overflow-y-auto">
-    <div class="glass-panel-asphalt w-full max-w-md rounded-3xl p-6 border border-gold-500/50 shadow-2xl text-center space-y-4 my-4">
-      <div class="inline-flex w-16 h-16 rounded-3xl gold-button-bg items-center justify-center text-asphalt-950 text-3xl shadow-xl mb-1">
-        <i class="fa-solid fa-trophy"></i>
-      </div>
-      <h2 class="text-2xl font-black font-display text-slate-100">Подорож завершена!</h2>
-
-      <div class="glass-card-asphalt rounded-2xl p-4 border border-gold-500/40 bg-asphalt-900/80 space-y-1">
-        <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Загальна оцінка</span>
-        <div class="text-5xl font-black gold-gradient-text py-1" id="final-total-score">0.0</div>
-        <div class="text-xs text-slate-400" id="final-context"></div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5">
-          <span class="text-slate-400 block text-[10px]">Етап 1 (Карта)</span>
-          <span class="font-extrabold text-gold-300 text-base" id="final-s1">0.0</span>
-        </div>
-        <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5">
-          <span class="text-slate-400 block text-[10px]">Етап 2 (Історія)</span>
-          <span class="font-extrabold text-gold-300 text-base" id="final-s2">0.0</span>
-        </div>
-      </div>
-
-      <div class="glass-card-asphalt p-3 rounded-2xl border border-white/5 text-left text-xs text-slate-300 space-y-0.5">
-        <div class="font-bold text-gold-300 mb-1">Дані для журналу:</div>
-        <div>Клас: <span id="journal-class" class="font-semibold">—</span></div>
-        <div>Маршрут: <span id="journal-word" class="font-semibold">—</span></div>
-        <div>Оцінка: <span id="journal-score" class="font-semibold text-gold-300">—</span></div>
-      </div>
-
-      <button onclick="location.reload()" class="w-full py-3.5 rounded-2xl glass-card-asphalt border border-gold-500/40 hover:bg-asphalt-800 text-gold-300 font-bold text-xs transition-all">Завершити</button>
-    </div>
-  </div>
-
   <script>
     const GEOGRAPHY_ITEMS = [
       { id: '1', name: 'мис Рас-Енгела', lat: 37.348, lng: 9.845, category: 'EXTREME', desc: 'Північна крайня точка' },
@@ -552,7 +226,7 @@
     };
     function triggerVibration(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
 
-    // ==================== КАРТА З БАГАТОРІВНЕВИМ FALLBACK ====================
+    // ==================== КАРТА ====================
 
     function setMapStatus(text, mode) {
       const el = document.getElementById('map-status');
@@ -586,56 +260,36 @@
       currentTileLayer = null;
     }
 
-    function addCartoLayer() {
-      removeCurrentTileLayer();
-      tilesLoadedCount = 0;
-      mapMode = 'loading';
-      setMapStatus('Завантаження карти…', 'loading');
-
-      const layer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OSM &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 19,
-        detectRetina: true
-      });
-      layer.on('tileload', () => {
-        tilesLoadedCount++;
-        if (tilesLoadedCount === 1) {
-          mapMode = 'carto';
-          setMapStatus('Карта завантажена (CARTO)', 'ok');
-          clearFallbackTimers();
-        }
-      });
-      layer.addTo(map);
-      currentTileLayer = layer;
-
-      fallbackTimers.push(setTimeout(() => {
-        if (tilesLoadedCount === 0 && mapMode === 'loading') {
-          console.warn('[map] CARTO timeout — switching to OSM');
-          addOsmLayer();
-        }
-      }, 6000));
-    }
-
+    // 1. Основний шар - OSM (замість CARTO)
     function addOsmLayer() {
       removeCurrentTileLayer();
       tilesLoadedCount = 0;
       mapMode = 'loading';
-      setMapStatus('Резервний шар (OSM)…', 'loading');
+      setMapStatus('Завантаження карти (OSM)…', 'loading');
 
-      const layer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
+      const layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
         maxZoom: 19,
-        crossOrigin: true
+        detectRetina: true
       });
+      
       layer.on('tileload', () => {
         tilesLoadedCount++;
         if (tilesLoadedCount === 1) {
           mapMode = 'osm';
-          setMapStatus('Резервний шар (OSM)', 'warn');
+          setMapStatus('Карта завантажена (OSM)', 'ok');
           clearFallbackTimers();
         }
       });
+      
+      // Якщо перший тайл дає помилку - відразу перемикаємось
+      layer.on('tileerror', () => {
+        if (tilesLoadedCount === 0 && mapMode === 'loading') {
+          console.warn('[map] OSM tile error — switching to Esri');
+          addEsriLayer();
+        }
+      });
+
       layer.addTo(map);
       currentTileLayer = layer;
 
@@ -644,9 +298,10 @@
           console.warn('[map] OSM timeout — switching to Esri');
           addEsriLayer();
         }
-      }, 6000));
+      }, 5000)); // Трохи швидше - 5с
     }
 
+    // 2. Резервний шар - Esri
     function addEsriLayer() {
       removeCurrentTileLayer();
       tilesLoadedCount = 0;
@@ -657,6 +312,7 @@
         attribution: '&copy; Esri',
         maxZoom: 19
       });
+      
       layer.on('tileload', () => {
         tilesLoadedCount++;
         if (tilesLoadedCount === 1) {
@@ -665,6 +321,14 @@
           clearFallbackTimers();
         }
       });
+      
+      layer.on('tileerror', () => {
+        if (tilesLoadedCount === 0 && mapMode === 'loading') {
+          console.warn('[map] Esri tile error — switching to OFFLINE');
+          enableOfflineMode();
+        }
+      });
+
       layer.addTo(map);
       currentTileLayer = layer;
 
@@ -673,37 +337,30 @@
           console.warn('[map] Esri timeout — switching to OFFLINE mode');
           enableOfflineMode();
         }
-      }, 6000));
+      }, 5000));
     }
 
+    // 3. Офлайн-режим
     function enableOfflineMode() {
       removeCurrentTileLayer();
       mapMode = 'offline';
       clearFallbackTimers();
-      setMapStatus('Офлайн-режим: інтернет недоступний, але мітки працюють', 'offline');
+      setMapStatus('Офлайн-режим: мітки працюють', 'offline');
 
-      // Контур Африки — темніший, щоб не було світлої плями
+      // Контур Африки
       L.rectangle([[-35, -18], [37, 52]], {
-        color: '#D4AF37', weight: 2,
-        fillColor: '#15181E', fillOpacity: 0.4,
-        dashArray: '6 4'
+        color: '#D4AF37', weight: 2, fillColor: '#15181E', fillOpacity: 0.4, dashArray: '6 4'
       }).addTo(map);
 
-      // Сітка координат
+      // Сітка
       for (let lat = -30; lat <= 30; lat += 10) {
         L.polyline([[lat, -20], [lat, 52]], { color: '#3A4252', weight: 0.6, dashArray: '2 6', opacity: 0.5 }).addTo(map);
       }
       for (let lng = -10; lng <= 50; lng += 10) {
         L.polyline([[-35, lng], [37, lng]], { color: '#3A4252', weight: 0.6, dashArray: '2 6', opacity: 0.5 }).addTo(map);
       }
-      // Екватор
       L.polyline([[0, -20], [0, 52]], { color: '#D4AF37', weight: 1.2, opacity: 0.7 }).addTo(map);
-      L.marker([0, -19], {
-        icon: L.divIcon({ className: '', html: '<div style="color:#D4AF37;font-size:9px;font-weight:800;white-space:nowrap">Екватор</div>', iconSize: [40, 10], iconAnchor: [20, 5] }),
-        interactive: false
-      }).addTo(map);
 
-      // Підписи орієнтирів
       const labels = [
         { name: 'САХАРА', lat: 23, lng: 12, size: 13 },
         { name: 'Ніл', lat: 21.5, lng: 31, size: 11 },
@@ -733,9 +390,7 @@
 
     function reloadMap() {
       clearFallbackTimers();
-      if (map) {
-        try { map.remove(); } catch (e) {}
-      }
+      if (map) { try { map.remove(); } catch (e) {} }
       markersMap = {};
       initMap();
       if (currentStage === 1) {
@@ -750,19 +405,13 @@
       }
     }
 
-    // ==================== ІНІЦІАЛІЗАЦІЯ КАРТИ ====================
-
     function initMap() {
       map = L.map('map', {
-        zoomControl: false,
-        attributionControl: true,
-        minZoom: 2,
-        maxZoom: 7,
-        worldCopyJump: true
+        zoomControl: false, attributionControl: true, minZoom: 2, maxZoom: 7, worldCopyJump: true
       }).setView([2.0, 16.0], 3);
 
       map.on('click', () => deselectAllChips());
-      addCartoLayer();
+      addOsmLayer(); // Стартуємо з OSM
 
       setTimeout(() => map.invalidateSize(), 300);
       window.addEventListener('resize', () => map.invalidateSize());
@@ -775,8 +424,7 @@
         const customIcon = L.divIcon({
           className: 'target-marker-icon',
           html: `<div id="pin-${item.id}" class="target-pin pulse" data-id="${item.id}"></div>`,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
+          iconSize: [28, 28], iconAnchor: [14, 14]
         });
         const marker = L.marker([item.lat, item.lng], { icon: customIcon }).addTo(map);
         marker._isTargetMarker = true;
@@ -785,7 +433,7 @@
       });
     }
 
-    // ==================== ГРА: ЕТАП 1 ====================
+    // ==================== ЕТАП 1 ====================
 
     function renderChipsTray() {
       const tray = document.getElementById('labels-tray');
@@ -796,14 +444,14 @@
       itemsToRender.sort(() => Math.random() - 0.5);
 
       if (itemsToRender.length === 0 && completedItems.size < GEOGRAPHY_ITEMS.length) {
-        tray.innerHTML = `<span class="text-xs text-slate-400 italic px-2">Всі об'єкти цієї категорії уже позначені! Перемкніть категорію.</span>`;
+        tray.innerHTML = `<span style="font-size:12px;color:#94a3b8;font-style:italic;padding:0 8px;">Всі об'єкти цієї категорії уже позначені! Перемкніть категорію.</span>`;
         return;
       }
       itemsToRender.forEach(item => {
         const chip = document.createElement('button');
         chip.id = `chip-${item.id}`;
-        chip.className = `chip glass-card-asphalt px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 border border-white/10 hover:border-gold-500/40 whitespace-nowrap transition-all duration-200 shrink-0 flex items-center gap-1.5 active:scale-95`;
-        chip.innerHTML = `<i class="fa-solid fa-location-dot text-gold-400 text-[10px]"></i> ${item.name}`;
+        chip.className = `chip glass-card-asphalt`;
+        chip.innerHTML = `<i class="fa-solid fa-location-dot text-gold-400" style="font-size:10px;"></i> ${item.name}`;
         chip.addEventListener('click', (e) => { e.stopPropagation(); AudioEngine.init(); selectChip(item.id); });
         tray.appendChild(chip);
       });
@@ -819,14 +467,14 @@
       const chipEl = document.getElementById(`chip-${id}`);
       if (chipEl) chipEl.classList.add('chip-selected');
       const targetItem = GEOGRAPHY_ITEMS.find(i => i.id === id);
-      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-crosshairs text-gold-400 animate-pulse"></i> <span>Знайди: <strong class="text-gold-300 font-bold">${targetItem.name}</strong></span>`;
+      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-crosshairs text-gold-400" style="animation: pulse 1s infinite;"></i> <span>Знайди: <strong class="text-gold-300" style="font-weight:700;">${targetItem.name}</strong></span>`;
       document.getElementById('hint-action').textContent = `Обрано: ${targetItem.name}`;
     }
 
     function deselectAllChips() {
       selectedChipId = null;
       document.querySelectorAll('#labels-tray button').forEach(el => el.classList.remove('chip-selected'));
-      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-hand-pointer text-gold-400 animate-bounce"></i> <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>`;
+      document.getElementById('toast-text').innerHTML = `<i class="fa-solid fa-hand-pointer text-gold-400" style="animation: bounce 1s infinite;"></i> <span>1. Обери назву &nbsp;→&nbsp; 2. Торкнись мітки</span>`;
       document.getElementById('hint-action').textContent = `Обери назву об'єкта`;
     }
 
@@ -882,41 +530,38 @@
       if (currentStage === 1) {
         const remaining = GEOGRAPHY_ITEMS.length - completedItems.size;
         document.getElementById('early-finish-text').innerHTML = `Ти знайшов <b>${completedItems.size} з ${GEOGRAPHY_ITEMS.length}</b> об'єктів.<br><br>Якщо завершиш зараз, за <b>${remaining} незнайдених</b> об'єктів буде нараховано 0 балів. Твоя оцінка становитиме <b>${Math.min(12.0, score).toFixed(1)}</b> з 12.0.`;
-        document.getElementById('modal-early-finish').classList.remove('hidden');
+        document.getElementById('modal-early-finish').classList.add('active');
       } else if (currentStage === 2) {
         const totalScenes = currentRoute?.scenes.length ?? 9;
         const remaining = totalScenes - storyTaskIdx;
         const currentS2 = Math.min(12.0, (storyScore / totalScenes) * 12).toFixed(1);
         document.getElementById('early-finish-text').innerHTML = `Ти пройшов <b>${storyTaskIdx} з ${totalScenes}</b> сцен.<br><br>Якщо завершиш зараз, за <b>${remaining} сцен</b>, що залишилися, буде нараховано 0 балів. Твоя оцінка за історію становитиме <b>${currentS2}</b> з 12.0.`;
-        document.getElementById('modal-early-finish').classList.remove('hidden');
+        document.getElementById('modal-early-finish').classList.add('active');
       }
     }
 
     function executeEarlyFinish() {
-      document.getElementById('modal-early-finish').classList.add('hidden');
-      if (currentStage === 1) {
-        finishStage1();
-      } else if (currentStage === 2) {
-        finishGame();
-      }
+      document.getElementById('modal-early-finish').classList.remove('active');
+      if (currentStage === 1) { finishStage1(); }
+      else if (currentStage === 2) { finishGame(); }
     }
 
     function finishStage1() {
       const finalGrade = Math.min(12.0, Math.round(score * 10) / 10).toFixed(1);
       document.getElementById('inter-score').textContent = finalGrade;
-      document.getElementById('btn-finish-early').classList.add('hidden');
-      document.getElementById('modal-inter').classList.remove('hidden');
+      document.getElementById('btn-finish-early').style.display = 'none';
+      document.getElementById('modal-inter').classList.add('active');
     }
 
-    // ==================== ГРА: ЕТАП 2 ====================
+    // ==================== ЕТАП 2 ====================
 
     function startStage2() {
       currentStage = 2;
-      document.getElementById('stage1-nav').classList.add('hidden');
-      document.getElementById('stage1-footer').classList.add('hidden');
-      document.getElementById('instruction-toast').classList.add('hidden');
-      document.getElementById('stage2-bar').classList.remove('hidden');
-      document.getElementById('btn-finish-early').classList.remove('hidden');
+      document.getElementById('stage1-nav').style.display = 'none';
+      document.getElementById('stage1-footer').style.display = 'none';
+      document.getElementById('instruction-toast').style.display = 'none';
+      document.getElementById('stage2-bar').classList.add('active');
+      document.getElementById('btn-finish-early').style.display = 'flex';
 
       routeId = currentWord;
       currentRoute = ROUTES.find(r => r.id === routeId) || ROUTES[0];
@@ -929,10 +574,8 @@
     }
 
     function scrollStoryPanelToBottom() {
-      const panel = document.querySelector('#stage2-bar > div');
-      if (panel) {
-        setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 50);
-      }
+      const panel = document.querySelector('.story-panel');
+      if (panel) setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 50);
     }
 
     function loadStoryScene() {
@@ -944,9 +587,9 @@
       document.getElementById('story-narrative').textContent = sc.n;
       document.getElementById('story-question').textContent = sc.q;
       const cons = document.getElementById('story-consequence');
-      cons.classList.add('hidden');
+      cons.style.display = 'none';
       cons.textContent = '';
-      cons.className = "text-xs p-2 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-200 mt-2 hidden";
+      cons.className = '';
 
       const choicesCont = document.getElementById('story-choices');
       choicesCont.innerHTML = '';
@@ -958,7 +601,7 @@
         btn.className = 'story-choice';
         btn.dataset.ok = o.ok ? 'true' : 'false';
         btn.dataset.reason = o.r || '';
-        btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-gold-500/20 text-gold-300 flex items-center justify-center font-bold text-xs shrink-0">${letters[i]}</span> <span>${o.t}</span>`;
+        btn.innerHTML = `<span style="width:24px;height:24px;border-radius:50%;background:rgba(212,175,55,0.2);color:var(--gold-300);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">${letters[i]}</span> <span>${o.t}</span>`;
         btn.onclick = () => handleStoryAnswer(btn);
         choicesCont.appendChild(btn);
       });
@@ -983,7 +626,10 @@
         else if (storyAttempts === 2) storyScore += 0.5;
 
         cons.textContent = "✓ " + btn.dataset.reason;
-        cons.className = "text-xs p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 mt-2 block";
+        cons.style.display = 'block';
+        cons.style.background = 'rgba(34,197,94,0.1)';
+        cons.style.border = '1px solid rgba(34,197,94,0.3)';
+        cons.style.color = '#4ade80';
         scrollStoryPanelToBottom();
 
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
@@ -1000,7 +646,10 @@
       if (storyAttempts >= 2) {
         sceneLocked = true;
         cons.textContent = "✗ Друга помилка. Правильна відповідь підсвічена. Балів за цю сцену — 0.";
-        cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
+        cons.style.display = 'block';
+        cons.style.background = 'rgba(239,68,68,0.1)';
+        cons.style.border = '1px solid rgba(239,68,68,0.3)';
+        cons.style.color = '#f87171';
         scrollStoryPanelToBottom();
 
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
@@ -1012,13 +661,16 @@
       }
 
       cons.textContent = "✗ Неправильно. Спробуй ще раз — правильну відповідь не підсвічую.";
-      cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
+      cons.style.display = 'block';
+      cons.style.background = 'rgba(239,68,68,0.1)';
+      cons.style.border = '1px solid rgba(239,68,68,0.3)';
+      cons.style.color = '#f87171';
       scrollStoryPanelToBottom();
     }
 
     function finishGame() {
-      document.getElementById('stage2-bar').classList.add('hidden');
-      document.getElementById('btn-finish-early').classList.add('hidden');
+      document.getElementById('stage2-bar').classList.remove('active');
+      document.getElementById('btn-finish-early').style.display = 'none';
       if (window.storyMarker) { try { map.removeLayer(window.storyMarker); } catch (e) {} window.storyMarker = null; }
 
       const totalScenes = currentRoute?.scenes.length ?? 9;
@@ -1035,7 +687,7 @@
       document.getElementById('journal-word').textContent = currentRoute?.title || '—';
       document.getElementById('journal-score').textContent = total;
 
-      document.getElementById('modal-victory').classList.remove('hidden');
+      document.getElementById('modal-victory').classList.add('active');
     }
 
     // ==================== СТАРТ ====================
@@ -1079,8 +731,8 @@
         document.getElementById('class-label').textContent = currentClass;
         const r = ROUTES.find(r => r.id === currentWord);
         document.getElementById('word-label').textContent = r ? r.title : currentWord;
-        document.getElementById('modal-start').classList.add('hidden');
-        document.getElementById('btn-finish-early').classList.remove('hidden');
+        document.getElementById('modal-start').classList.remove('active');
+        document.getElementById('btn-finish-early').style.display = 'flex';
         renderChipsTray();
         setTimeout(() => map.invalidateSize(), 200);
       });
@@ -1088,10 +740,8 @@
       document.querySelectorAll('.cat-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
           const target = e.currentTarget;
-          document.querySelectorAll('.cat-tab').forEach(t => {
-            t.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-300 hover:bg-asphalt-700 transition-all whitespace-nowrap";
-          });
-          target.className = "cat-tab px-3 py-1.5 rounded-xl text-[11px] font-bold tracking-wide transition-all bg-gold-500 text-asphalt-950 shadow-md whitespace-nowrap";
+          document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+          target.classList.add('active');
           activeCategory = target.getAttribute('data-cat');
           deselectAllChips();
           renderChipsTray();
@@ -1099,7 +749,7 @@
       });
 
       document.getElementById('btn-goto-stage2').addEventListener('click', () => {
-        document.getElementById('modal-inter').classList.add('hidden');
+        document.getElementById('modal-inter').classList.remove('active');
         startStage2();
       });
 
