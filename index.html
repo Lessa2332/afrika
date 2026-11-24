@@ -49,6 +49,19 @@
     .leaflet-control-attribution { background: rgba(15, 17, 21, 0.7) !important; color: #9CA3AF !important; font-size: 10px !important; backdrop-filter: blur(6px); border-radius: 6px; padding: 2px 8px !important; margin: 6px !important; }
     .leaflet-control-attribution a { color: #D4AF37 !important; }
 
+    /* Темна тема для попапів Leaflet — виправляє білий елемент на карті */
+    .leaflet-popup-content-wrapper {
+      background: rgba(26, 30, 38, 0.97) !important;
+      color: #F3F4F6 !important;
+      border: 1px solid rgba(212, 175, 55, 0.5) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+    }
+    .leaflet-popup-content { margin: 8px 12px !important; color: #F3F4F6 !important; }
+    .leaflet-popup-tip { background: rgba(26, 30, 38, 0.97) !important; border: 1px solid rgba(212, 175, 55, 0.5) !important; }
+    .leaflet-popup-close-button { color: #D4AF37 !important; }
+    .leaflet-popup { z-index: 700 !important; }
+
     .target-marker-icon { display: flex; align-items: center; justify-content: center; }
     .target-pin { width: 28px; height: 28px; border-radius: 50%; background: rgba(212, 175, 55, 0.28); border: 2px solid #D4AF37; box-shadow: 0 0 14px rgba(212, 175, 55, 0.6); cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; position: relative; }
     .target-pin::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #F3E5AB; }
@@ -90,10 +103,11 @@
       #instruction-toast p { font-size: 10px !important; }
       #btn-recenter { bottom: 14px !important; right: 10px !important; width: 42px !important; height: 42px !important; }
       #stage2-bar { padding: 6px !important; }
-      #stage2-bar > div { padding: 10px !important; max-height: 60dvh; overflow-y: auto; }
+      #stage2-bar > div { padding: 10px !important; max-height: 62dvh; overflow-y: auto; }
       .narrative { font-size: 0.78rem !important; }
       #story-question { font-size: 0.82rem !important; margin-bottom: 6px !important; }
       .story-choice { font-size: 0.78rem !important; min-height: 42px !important; padding: 8px 10px !important; }
+      #map-status { bottom: 66px !important; }
     }
     @media (max-width: 380px) {
       .cat-tab { font-size: 9px !important; padding: 5px 8px !important; }
@@ -509,7 +523,7 @@
     let map = null;
     let markersMap = {};
     let currentTileLayer = null;
-    let mapMode = 'loading'; // 'carto' | 'osm' | 'esri' | 'offline'
+    let mapMode = 'loading';
     let fallbackTimers = [];
     let tilesLoadedCount = 0;
 
@@ -554,7 +568,6 @@
       el.classList.remove('hidden');
       if (startEl) startEl.textContent = 'Карта: ' + text;
 
-      // Автосховати через 6 секунд, якщо все ок
       if (mode === 'ok' || mode === 'warn') {
         clearTimeout(el._hideTimer);
         el._hideTimer = setTimeout(() => el.classList.add('hidden'), 6000);
@@ -593,16 +606,9 @@
           clearFallbackTimers();
         }
       });
-      layer.on('tileerror', () => {
-        // Якщо перший тайл не завантажився і вже є помилки — спробуємо OSM
-        if (tilesLoadedCount === 0 && mapMode === 'loading') {
-          // Не перемикаємось відразу — даємо таймауту спрацювати (раптом одна помилка)
-        }
-      });
       layer.addTo(map);
       currentTileLayer = layer;
 
-      // Таймаут: якщо за 6с жоден тайл не завантажився — OSM
       fallbackTimers.push(setTimeout(() => {
         if (tilesLoadedCount === 0 && mapMode === 'loading') {
           console.warn('[map] CARTO timeout — switching to OSM');
@@ -676,12 +682,14 @@
       clearFallbackTimers();
       setMapStatus('Офлайн-режим: інтернет недоступний, але мітки працюють', 'offline');
 
-      // 1. Контур Африки (приблизні межі)
+      // Контур Африки — темніший, щоб не було світлої плями
       L.rectangle([[-35, -18], [37, 52]], {
-        color: '#D4AF37', weight: 2, fillColor: '#1F232B', fillOpacity: 0.85, dashArray: '6 4'
-      }).addTo(map).bindTooltip('АФРИКА (офлайн-контур)', { permanent: false });
+        color: '#D4AF37', weight: 2,
+        fillColor: '#15181E', fillOpacity: 0.4,
+        dashArray: '6 4'
+      }).addTo(map);
 
-      // 2. Сітка координат
+      // Сітка координат
       for (let lat = -30; lat <= 30; lat += 10) {
         L.polyline([[lat, -20], [lat, 52]], { color: '#3A4252', weight: 0.6, dashArray: '2 6', opacity: 0.5 }).addTo(map);
       }
@@ -695,7 +703,7 @@
         interactive: false
       }).addTo(map);
 
-      // 3. Підписи орієнтирів
+      // Підписи орієнтирів
       const labels = [
         { name: 'САХАРА', lat: 23, lng: 12, size: 13 },
         { name: 'Ніл', lat: 21.5, lng: 31, size: 11 },
@@ -725,20 +733,13 @@
 
     function reloadMap() {
       clearFallbackTimers();
-      // Видаляємо офлайн-шари, якщо вони є
-      map.eachLayer(l => {
-        if (l instanceof L.Rectangle || (l instanceof L.Polyline && !l._isTargetMarker) || (l instanceof L.Marker && !l._isTargetMarker && l !== window.storyMarker)) {
-          // не чіпаємо цільові маркери (вони з divIcon і мають id pin-N)
-        }
-      });
-      // Простіше: перезавантажуємо всю карту
-      map.remove();
+      if (map) {
+        try { map.remove(); } catch (e) {}
+      }
       markersMap = {};
       initMap();
-      // Повертаємо цільові маркери (якщо гра вже почалась)
-      if (currentStage === 1 && completedItems.size >= 0) {
+      if (currentStage === 1) {
         renderTargetMarkers();
-        // Позначаємо вже знайдені
         completedItems.forEach(id => {
           const pinEl = document.getElementById(`pin-${id}`);
           if (pinEl) {
@@ -752,9 +753,6 @@
     // ==================== ІНІЦІАЛІЗАЦІЯ КАРТИ ====================
 
     function initMap() {
-      if (map) {
-        try { map.remove(); } catch (e) {}
-      }
       map = L.map('map', {
         zoomControl: false,
         attributionControl: true,
@@ -764,7 +762,6 @@
       }).setView([2.0, 16.0], 3);
 
       map.on('click', () => deselectAllChips());
-
       addCartoLayer();
 
       setTimeout(() => map.invalidateSize(), 300);
@@ -864,7 +861,15 @@
 
       if (pinEl) { pinEl.className = `target-pin ${attemptClass}`; pinEl.innerHTML = `<i class="fa-solid fa-check text-[10px] text-white"></i>`; }
       const marker = markersMap[clickedItem.id];
-      if (marker) marker.bindPopup(`<div class="text-center font-bold text-xs py-0.5 px-1 text-slate-100">${clickedItem.name}<div class="text-[10px] font-normal text-slate-300 mt-0.5">${clickedItem.desc}</div></div>`, { closeButton: false }).openPopup();
+      if (marker) {
+        marker.bindPopup(
+          `<div style="text-align:center;font-weight:700;font-size:12px;padding:2px 4px;color:#F3F4F6">
+             ${clickedItem.name}
+             <div style="font-size:10px;font-weight:400;color:#D1D5DB;margin-top:2px">${clickedItem.desc}</div>
+           </div>`,
+          { closeButton: false }
+        ).openPopup();
+      }
 
       deselectAllChips();
       renderChipsTray();
@@ -923,6 +928,13 @@
       loadStoryScene();
     }
 
+    function scrollStoryPanelToBottom() {
+      const panel = document.querySelector('#stage2-bar > div');
+      if (panel) {
+        setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 50);
+      }
+    }
+
     function loadStoryScene() {
       if (storyTaskIdx >= currentRoute.scenes.length) { finishGame(); return; }
       storyAttempts = 0;
@@ -972,6 +984,7 @@
 
         cons.textContent = "✓ " + btn.dataset.reason;
         cons.className = "text-xs p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 mt-2 block";
+        scrollStoryPanelToBottom();
 
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
         AudioEngine.playSuccess();
@@ -988,6 +1001,7 @@
         sceneLocked = true;
         cons.textContent = "✗ Друга помилка. Правильна відповідь підсвічена. Балів за цю сцену — 0.";
         cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
+        scrollStoryPanelToBottom();
 
         document.querySelectorAll('.story-choice').forEach(b => b.disabled = true);
         const correctBtn = [...document.querySelectorAll('.story-choice')].find(b => b.dataset.ok === 'true');
@@ -999,6 +1013,7 @@
 
       cons.textContent = "✗ Неправильно. Спробуй ще раз — правильну відповідь не підсвічую.";
       cons.className = "text-xs p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 mt-2 block";
+      scrollStoryPanelToBottom();
     }
 
     function finishGame() {
@@ -1096,11 +1111,7 @@
         const btn = e.currentTarget;
         btn.classList.add('spinning');
         setTimeout(() => btn.classList.remove('spinning'), 900);
-        // Скидаємо всі таймери і пробуємо заново
-        clearFallbackTimers();
-        mapMode = 'loading';
-        tilesLoadedCount = 0;
-        addCartoLayer();
+        reloadMap();
       });
     });
   </script>
